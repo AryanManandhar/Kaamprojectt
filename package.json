@@ -1,0 +1,20 @@
+{
+  "name": "kam-backend",
+  "version": "1.0.0",
+  "description": "Login/signup API for the Kam app, backed by MySQL",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "serve": "node serve.js",
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "mysql2": "^3.10.0",
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5"
+  }
+}

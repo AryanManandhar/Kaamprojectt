@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kam - Find Trusted Hands</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://connect.facebook.net/en_US/sdk.js" async defer></script>
+<script src="auth-social.js"></script>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/login.css">
+<link rel="stylesheet" href="css/top-bar.css">
+<link rel="stylesheet" href="css/worker-cards.css">
+<link rel="stylesheet" href="css/bottom-nav.css">
+<link rel="stylesheet" href="css/drawer.css">
+<link rel="stylesheet" href="css/modal.css">
+<link rel="stylesheet" href="css/misc.css">
+<link rel="stylesheet" href="css/worker-jobs.css">
+<link rel="stylesheet" href="css/my-jobs.css">
+<link rel="stylesheet" href="css/user-requests.css">
+<link rel="stylesheet" href="css/you-hired.css">
+<link rel="stylesheet" href="css/hired-by.css">
+<base target="_blank">
+</head>
+<body>
+
+
+<div id="login-screen" class="screen active">
+  <div class="silhouettes-bg">
+    <svg width="100%" height="400" viewBox="0 0 1400 400" preserveAspectRatio="xMidYMax meet" fill="white">
+      <g transform="translate(80,20)">
+        <circle cx="30" cy="30" r="22"/>
+        <rect x="8" y="55" width="44" height="70" rx="6"/>
+        <rect x="12" y="125" width="16" height="80" rx="5"/>
+        <rect x="32" y="125" width="16" height="80" rx="5"/>
+        <rect x="0" y="55" width="16" height="55" rx="5"/>
+        <rect x="44" y="55" width="16" height="55" rx="5"/>
+        <rect x="-10" y="18" width="80" height="10" rx="4"/>
+        <rect x="55" y="90" width="60" height="8" rx="3"/>
+      </g>
+      <g transform="translate(220,40)">
+        <circle cx="28" cy="28" r="20"/>
+        <rect x="8" y="50" width="40" height="65" rx="5"/>
+        <rect x="10" y="115" width="14" height="75" rx="4"/>
+        <rect x="28" y="115" width="14" height="75" rx="4"/>
+        <rect x="44" y="60" width="10" height="100" rx="4"/>
+        <ellipse cx="49" cy="165" rx="20" ry="8"/>
+      </g>
+      <g transform="translate(380,30)">
+        <ellipse cx="28" cy="12" rx="22" ry="12"/>
+        <circle cx="28" cy="38" r="22"/>
+        <rect x="8" y="62" width="40" height="65" rx="5"/>
+        <rect x="10" y="127" width="14" height="75" rx="4"/>
+        <rect x="26" y="127" width="14" height="75" rx="4"/>
+        <rect x="0" y="72" width="12" height="45" rx="4"/>
+        <rect x="36" y="62" width="12" height="45" rx="4"/>
+        <circle cx="48" cy="82" r="16"/>
+      </g>
+      <g transform="translate(550,25)">
+        <circle cx="28" cy="28" r="20"/>
+        <rect x="10" y="52" width="36" height="65" rx="5"/>
+        <rect x="12" y="117" width="14" height="80" rx="4"/>
+        <rect x="30" y="117" width="14" height="80" rx="4"/>
+        <rect x="42" y="68" width="10" height="70" rx="4"/>
+        <polygon points="42,55 55,75 29,75"/>
+      </g>
+      <g transform="translate(720,35)">
+        <circle cx="28" cy="26" r="20"/>
+        <rect x="8" y="50" width="40" height="65" rx="5"/>
+        <rect x="10" y="115" width="14" height="75" rx="4"/>
+        <rect x="28" y="115" width="14" height="75" rx="4"/>
+        <rect x="-10" y="65" width="20" height="8" rx="3"/>
+        <circle cx="-10" cy="69" r="10"/>
+        <rect x="-14" y="60" width="8" height="18" rx="2"/>
+      </g>
+      <g transform="translate(880,20)">
+        <circle cx="28" cy="28" r="20"/>
+        <rect x="8" y="52" width="40" height="65" rx="5"/>
+        <rect x="10" y="117" width="14" height="75" rx="4"/>
+        <rect x="28" y="117" width="14" height="75" rx="4"/>
+        <rect x="44" y="55" width="10" height="90" rx="4"/>
+        <circle cx="49" cy="52" r="22"/>
+        <circle cx="34" cy="40" r="14"/>
+        <circle cx="62" cy="44" r="14"/>
+      </g>
+      <g transform="translate(1050,40)">
+        <circle cx="28" cy="26" r="20"/>
+        <rect x="8" y="50" width="40" height="65" rx="5"/>
+        <rect x="10" y="115" width="14" height="75" rx="4"/>
+        <rect x="28" y="115" width="14" height="75" rx="4"/>
+        <rect x="-20" y="68" width="25" height="15" rx="3"/>
+        <rect x="-20" y="83" width="25" height="15" rx="3"/>
+        <rect x="-5" y="65" width="15" height="35" rx="3"/>
+      </g>
+      <g transform="translate(1220,45)">
+        <circle cx="28" cy="26" r="20"/>
+        <rect x="8" y="50" width="40" height="65" rx="5"/>
+        <rect x="10" y="115" width="14" height="75" rx="4"/>
+        <rect x="28" y="115" width="14" height="75" rx="4"/>
+        <rect x="42" y="65" width="12" height="12" rx="6"/>
+        <rect x="36" y="62" width="24" height="8" rx="3"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="login-card">
+    <div class="brand-logo">Kam</div>
+    <div class="brand-tagline">Find trusted hands, near you.</div>
+
+    <div class="auth-error" id="auth-error"></div>
+
+    <div class="social-btn" id="btn-facebook">
+      <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      Continue with Facebook
+    </div>
+    <div class="social-btn" id="btn-google">
+      <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </div>
+    <div class="social-btn disabled" title="Coming soon">
+      <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#000" d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+      Continue with Apple
+    </div>
+    <div class="social-btn disabled" title="Coming soon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18.01"/></svg>
+      Continue with Phone Number
+    </div>
+
+    <div class="login-divider" id="auth-divider">or sign in with email</div>
+
+    <div class="input-group">
+      <input type="text" placeholder="Full name" id="signup-name" style="display:none;">
+    </div>
+    <div class="input-group">
+      <input type="email" placeholder="Email address" id="login-email">
+    </div>
+    <div class="input-group">
+      <input type="password" placeholder="Password" id="login-pass">
+    </div>
+    <button class="login-submit" id="auth-submit-btn" onclick="submitAuthForm()">Sign In to Kam</button>
+    <div class="auth-toggle-line" id="auth-toggle-line">
+      Don't have an account? <a onclick="toggleAuthMode()">Sign up</a>
+    </div>
+  </div>
+</div>
+
+<div id="dashboard-screen" class="screen">
+
+  <div class="top-bar">
+    <button class="hamburger-btn" onclick="openDrawer()">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+    <div class="top-bar-logo">Kam</div>
+    <div class="search-bar-wrap">
+      <span class="search-icon">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </span>
+      <input type="text" placeholder="Search workers by name, skill, or location..." id="search-input" oninput="filterWorkers()">
+    </div>
+  </div>
+
+  <div class="filter-row" id="filter-row">
+    <div class="filter-tag active" onclick="filterByTag(this,'All')">All</div>
+    <div class="filter-tag" onclick="filterByTag(this,'Plumber')">Plumber</div>
+    <div class="filter-tag" onclick="filterByTag(this,'Cleaner')">Cleaner</div>
+    <div class="filter-tag" onclick="filterByTag(this,'Cook')">Cook</div>
+    <div class="filter-tag" onclick="filterByTag(this,'Driver')">Driver</div>
+    <div class="filter-tag" onclick="filterByTag(this,'Mason')">Mason</div>
+    <div class="filter-tag" onclick="filterByTag(this,'Electrician')">Electrician</div>
+    <div class="filter-tag" onclick="filterByTag(this,'Gardener')">Gardener</div>
+    <div class="filter-tag" onclick="filterByTag(this,'Painter')">Painter</div>
+    <div class="filter-tag" onclick="filterByTag(this,'Nanny')">Nanny</div>
+    <div class="filter-tag" onclick="filterByTag(this,'Carpenter')">Carpenter</div>
+    <div class="filter-tag" onclick="filterByTag(this,'Security')">Security</div>
+  </div>
+
+  <div class="earnings-bar" id="earnings-bar">
+    <div>
+      <div class="earn-val">Rs 12,400</div>
+      <div class="earn-label">This Month</div>
+    </div>
+    <div style="width:1px;background:rgba(255,255,255,0.15);height:40px;"></div>
+    <div>
+      <div class="earn-val" style="font-size:22px;">8</div>
+      <div class="earn-label">Jobs Done</div>
+    </div>
+    <button class="avail-toggle-btn on" id="avail-btn" onclick="toggleAvail()">Available</button>
+  </div>
+
+  <div id="my-posted-jobs-section">
+    <div class="section-heading">My Posted <span>Jobs</span></div>
+    <div id="my-posted-jobs-list"></div>
+  </div>
+  <div id="hired-by-section">
+    <div class="section-heading">Hired <span>By</span></div>
+    <div id="hired-by-list" class="hired-by-list"></div>
+  </div>
+
+  <div id="you-hired-section">
+    <div class="section-heading">You <span>Hired</span></div>
+    <div id="you-hired-list" class="hired-list"></div>
+  </div>
+
+  <div id="user-requests-section">
+    <div class="section-heading">Incoming <span>Requests</span></div>
+    <div id="user-requests-list"></div>
+  </div>
+
+  <div class="workers-section" id="user-section">
+    <div class="section-heading">Top Rated <span>Workers Near You</span></div>
+    <div class="workers-grid" id="workers-grid"></div>
+  </div>
+
+  <div class="content-spacer"></div>
+
+  <div class="bottom-nav">
+    <div class="role-toggle-wrap">
+      <span class="role-label active" id="user-label">User</span>
+      <div class="toggle-track" id="role-toggle" onclick="toggleRole()">
+        <div class="toggle-knob"></div>
+      </div>
+      <span class="role-label" id="worker-label">Worker</span>
+    </div>
+    <div class="bottom-nav-actions" id="nav-actions"></div>
+  </div>
+</div>
+
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+
+<div class="drawer" id="side-drawer">
+  <div class="drawer-header">
+    <div class="drawer-avatar">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+    </div>
+    <div class="drawer-name" id="drawer-name">Arun Tamang</div>
+    <div class="drawer-email" id="drawer-email">arun.tamang@gmail.com</div>
+  </div>
+  <div class="drawer-nav">
+    <div class="drawer-item" onclick="toast('My Profile');closeDrawer()">
+      <span class="drawer-item-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+      </span> My Profile
+    </div>
+    <div class="drawer-item" onclick="toast('Settings');closeDrawer()">
+      <span class="drawer-item-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06-.06A1.65 1.65 0 0 0 19.4 9c.7 0 1.35.25 1.85.66H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </span> Settings
+    </div>
+    <div class="drawer-item" onclick="toast('Notifications');closeDrawer()">
+      <span class="drawer-item-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+      </span> Notifications
+      <span class="notif-badge">3</span>
+    </div>
+    <div class="drawer-divider"></div>
+    <div class="drawer-item" onclick="showMyJobs();closeDrawer()">
+      <span class="drawer-item-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </span> My Jobs & Bookings
+    </div>
+    <div class="drawer-item" onclick="toast('Payment & Wallet');closeDrawer()">
+      <span class="drawer-item-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      </span> Payment & Wallet
+    </div>
+    <div class="drawer-item" onclick="toast('My Reviews');closeDrawer()">
+      <span class="drawer-item-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </span> My Reviews
+    </div>
+    <div class="drawer-divider"></div>
+    <div class="drawer-item" onclick="toast('Help & Support');closeDrawer()">
+      <span class="drawer-item-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </span> Help & Support
+    </div>
+    <div class="drawer-item" onclick="toast('Terms & Privacy');closeDrawer()">
+      <span class="drawer-item-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </span> Terms & Privacy
+    </div>
+  </div>
+  <div class="drawer-logout" onclick="doLogout()">Log Out</div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <button class="modal-close" onclick="closeModalDirect()">x</button>
+      <div class="modal-avatar" id="modal-avatar"></div>
+      <div class="modal-name" id="modal-name"></div>
+      <div class="modal-cat" id="modal-cat"></div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-stats">
+        <div class="modal-stat-box"><div class="modal-stat-val" id="modal-rating"></div><div class="modal-stat-label">Rating</div></div>
+        <div class="modal-stat-box"><div class="modal-stat-val" id="modal-jobs"></div><div class="modal-stat-label">Jobs Done</div></div>
+        <div class="modal-stat-box"><div class="modal-stat-val" id="modal-houses"></div><div class="modal-stat-label">Houses</div></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">About</div>
+        <div class="modal-bio" id="modal-bio"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">Skills</div>
+        <div class="skills-list" id="modal-skills"></div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">Recent Reviews</div>
+        <div id="modal-reviews"></div>
+      </div>
+      <button class="hire-btn" onclick="toast('Booking sent! Worker will confirm shortly.'); closeModalDirect()">Contact & Hire</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="post-job-overlay" onclick="closePostJobModal(event)">
+  <div class="modal" id="post-job-modal">
+    <div class="modal-header">
+      <button class="modal-close" onclick="closePostJobDirect()">x</button>
+      <div class="modal-name" style="font-size:22px;">Post a Job</div>
+    </div>
+    <div class="modal-body">
+      <div class="auth-error" id="post-job-error"></div>
+      <div class="input-group">
+        <input type="text" placeholder="Job title (e.g. Pipe leak fix)" id="job-title">
+      </div>
+      <div class="input-group">
+        <select id="job-category" style="width:100%; padding:13px 16px; border-radius:10px; border:1.5px solid var(--cream-dark); font-family:'DM Sans',sans-serif; font-size:14px; color:var(--charcoal); background:white;">
+          <option value="">Select category...</option>
+          <option value="Plumber">Plumber</option>
+          <option value="Cleaner">Cleaner</option>
+          <option value="Cook">Cook</option>
+          <option value="Driver">Driver</option>
+          <option value="Mason">Mason</option>
+          <option value="Electrician">Electrician</option>
+          <option value="Gardener">Gardener</option>
+          <option value="Painter">Painter</option>
+          <option value="Nanny">Nanny</option>
+          <option value="Carpenter">Carpenter</option>
+          <option value="Security">Security</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <input type="text" placeholder="Location (e.g. Thamel, Kathmandu)" id="job-location">
+      </div>
+      <div class="input-group">
+        <input type="number" placeholder="Budget (Rs)" id="job-budget">
+      </div>
+      <div class="input-group">
+        <textarea placeholder="Description (optional)" id="job-description" rows="3" style="width:100%; padding:13px 16px; border-radius:10px; border:1.5px solid var(--cream-dark); font-family:'DM Sans',sans-serif; font-size:14px; color:var(--charcoal); resize:vertical;"></textarea>
+      </div>
+      <button class="hire-btn" id="post-job-submit-btn" onclick="submitJobPost()">Post Job</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+
+<script src="js/data-workers.js"></script>
+<script src="js/avatar-helper.js"></script>
+<script src="js/worker-list.js"></script>
+<script src="js/worker-modal.js"></script>
+<script src="js/drawer.js"></script>
+<script src="js/role-toggle.js"></script>
+<script src="js/availability.js"></script>
+<script src="js/toast.js"></script>
+<script src="js/auth-ui.js"></script>
+<script src="js/auth-submit.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/posted-jobs.js"></script>
+<script src="js/jobs-feed.js"></script>
+<script src="js/my-jobs.js"></script>
+<script src="js/hire-worker.js"></script>
+<script src="js/hired-by.js"></script>
+<script src="js/you-hired.js"></script>
+<script src="js/post-job-modal.js"></script>
+<script src="js/session.js"></script>
+</body>
+</html>
