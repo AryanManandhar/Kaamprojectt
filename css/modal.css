@@ -1,0 +1,26 @@
+  .modal-overlay { position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--card-bg); border-radius: 24px; width: 100%; max-width: 460px; max-height: 88vh; overflow-y: auto; box-shadow: 0 32px 80px rgba(0,0,0,0.4); animation: modalIn 0.3s cubic-bezier(0.22,1,0.36,1); }
+  @keyframes modalIn { from { opacity:0; transform: scale(0.92) translateY(20px); } to { opacity:1; transform: scale(1) translateY(0); } }
+  .modal-header { background: linear-gradient(135deg, var(--charcoal) 0%, var(--charcoal-mid) 100%); padding: 28px 24px 20px; border-radius: 24px 24px 0 0; position: relative; }
+  .modal-close { position: absolute; top: 16px; right: 16px; background: rgba(255,255,255,0.1); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+  .modal-close:hover { background: rgba(255,255,255,0.2); }
+  .modal-avatar { width: 80px; height: 80px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.25); background: var(--cream-dark); margin-bottom: 12px; overflow: hidden; }
+  .modal-name { font-family: 'Playfair Display', serif; font-size: 24px; color: white; font-weight: 700; }
+  .modal-cat { color: var(--amber-light); font-size: 13px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; margin-top: 2px; }
+  .modal-body { padding: 24px; }
+  .modal-section { margin-bottom: 20px; }
+  .modal-section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--amber); font-weight: 700; margin-bottom: 8px; }
+  .modal-bio { font-size: 14px; color: var(--charcoal-mid); line-height: 1.6; }
+  .skills-list { display: flex; flex-wrap: wrap; gap: 8px; }
+  .skill-tag { padding: 5px 14px; border-radius: 16px; background: var(--cream); color: var(--charcoal-mid); font-size: 12px; font-weight: 500; border: 1px solid var(--cream-dark); }
+  .review-item { padding: 12px; background: var(--cream); border-radius: 12px; margin-bottom: 8px; }
+  .review-author { font-weight: 600; font-size: 13px; color: var(--charcoal); }
+  .review-text { font-size: 13px; color: var(--charcoal-mid); margin-top: 4px; line-height: 1.5; }
+  .hire-btn { width: 100%; padding: 16px; border-radius: 14px; background: linear-gradient(135deg, var(--amber) 0%, var(--terra) 100%); border: none; color: white; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 6px 20px rgba(200,104,26,0.4); transition: all 0.2s; letter-spacing: 0.02em; }
+  .hire-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(200,104,26,0.5); }
+  .modal-stats { display: flex; gap: 12px; margin: 16px 0; }
+  .modal-stat-box { flex: 1; background: var(--cream); border-radius: 12px; padding: 12px; text-align: center; border: 1px solid var(--cream-dark); }
+  .modal-stat-val { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--amber); font-weight: 700; }
+  .modal-stat-label { font-size: 11px; color: var(--charcoal-mid); margin-top: 2px; }
+  .content-spacer { height: 100px; }

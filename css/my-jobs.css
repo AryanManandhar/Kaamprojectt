@@ -1,0 +1,17 @@
+  #my-jobs-section { display: none; padding: 20px; }
+  #my-jobs-section.visible { display: block; }
+  #my-posted-jobs-section { display: none; padding: 20px; }
+  #my-posted-jobs-section.visible { display: block; }
+  .posted-job-card { background: var(--card-bg); border-radius: 14px; padding: 16px; border: 1.5px solid var(--cream-dark); margin-bottom: 12px; }
+  .posted-job-title { font-weight: 600; font-size: 14px; color: var(--charcoal); }
+  .posted-job-sub { font-size: 12px; color: var(--charcoal-mid); margin-top: 2px; }
+  .posted-job-status { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; margin-top: 6px; }
+  .posted-job-actions { margin-left: auto; display: flex; gap: 8px; }
+  .my-job-card { background: var(--card-bg); border-radius: 14px; padding: 16px; border: 1.5px solid var(--cream-dark); margin-bottom: 12px; }
+  .my-job-status { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; margin-top: 6px; }
+  .status-open { background: #E3F2FD; color: #1976D2; }
+  .status-accepted { background: #E8F5E9; color: #388E3C; }
+  .status-completed { background: #FFF3E0; color: #F57C00; }
+  .status-declined { background: #FFEBEE; color: #D32F2F; }
+  .my-job-title { font-weight: 600; font-size: 14px; color: var(--charcoal); }
+  .my-job-sub { font-size: 12px; color: var(--charcoal-mid); margin-top: 2px; }

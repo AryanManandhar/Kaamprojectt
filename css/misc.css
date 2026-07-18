@@ -1,0 +1,15 @@
+  @media (max-width: 480px) {
+    .workers-grid { grid-template-columns: repeat(2, 1fr); }
+    .login-card { padding: 36px 24px 28px; margin: 16px; }
+    .brand-logo { font-size: 44px; }
+  }
+  .notif-badge { background: var(--amber); color: white; border-radius: 10px; font-size: 10px; font-weight: 700; padding: 2px 6px; margin-left: auto; }
+  .worker-card.hidden { display: none; }
+  .toast {
+    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--charcoal); color: white; padding: 12px 24px;
+    border-radius: 24px; font-size: 14px; z-index: 500;
+    opacity: 0; transition: all 0.3s; white-space: nowrap;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }

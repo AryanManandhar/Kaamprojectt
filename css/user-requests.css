@@ -1,0 +1,7 @@
+  #user-requests-section { display: none; padding: 20px; }
+  #user-requests-section.visible { display: block; }
+  .user-req-card { background: var(--card-bg); border-radius: 14px; padding: 16px; border: 1.5px solid var(--cream-dark); margin-bottom: 12px; }
+  .user-req-title { font-weight: 600; font-size: 14px; color: var(--charcoal); }
+  .user-req-sub { font-size: 12px; color: var(--charcoal-mid); margin-top: 2px; }
+  .user-req-status { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 600; margin-top: 6px; }
+

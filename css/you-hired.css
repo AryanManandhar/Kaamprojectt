@@ -1,0 +1,31 @@
+  #you-hired-section { display: none; padding: 20px; }
+  #you-hired-section.visible { display: block; }
+  .hired-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .hired-card {
+    background: var(--card-bg);
+    border-radius: 16px; padding: 18px 16px 14px;
+    box-shadow: 0 2px 12px var(--shadow);
+    border: 1.5px solid rgba(200,104,26,0.08);
+    position: relative; overflow: hidden;
+    transition: all 0.22s;
+  }
+  .hired-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(44,36,23,0.15); }
+  .hired-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    background: linear-gradient(90deg, var(--amber), var(--terra));
+  }
+  .hired-worker-name { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: var(--charcoal); margin-bottom: 4px; }
+  .hired-job-title { font-size: 13px; color: var(--charcoal-mid); margin-bottom: 8px; }
+  .hired-meta-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 10px; }
+  .hired-meta-chip { font-size: 11px; padding: 4px 10px; border-radius: 10px; background: var(--cream); color: var(--charcoal-mid); font-weight: 500; }
+  .hired-date { font-size: 12px; color: var(--amber); font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .hired-status {
+    display: inline-block; padding: 4px 12px; border-radius: 20px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .hired-status-confirmed { background: #E3F2FD; color: #1976D2; }
+  .hired-status-completed { background: #E8F5E9; color: #388E3C; }
+  .hired-status-cancelled { background: #FFEBEE; color: #D32F2F; }
+  .no-hired-msg { color: var(--charcoal-mid); font-size: 13px; padding: 12px 0; text-align: center; }

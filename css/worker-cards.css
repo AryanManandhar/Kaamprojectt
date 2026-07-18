@@ -1,0 +1,28 @@
+  .workers-section { padding: 20px; }
+  .section-heading { font-family: 'Playfair Display', serif; font-size: 20px; font-weight: 700; color: var(--charcoal); margin-bottom: 16px; }
+  .section-heading span { color: var(--amber); }
+  .workers-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 16px; }
+  .worker-card {
+    background: var(--card-bg);
+    border-radius: 16px; padding: 18px 14px 14px;
+    box-shadow: 0 2px 12px var(--shadow);
+    cursor: pointer; transition: all 0.22s;
+    border: 1.5px solid rgba(200,104,26,0.08);
+    position: relative; overflow: hidden;
+  }
+  .worker-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(200,104,26,0.06) 0%, transparent 60%); opacity: 0; transition: opacity 0.2s; }
+  .worker-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(44,36,23,0.18); }
+  .worker-card:hover::after { opacity: 1; }
+  .worker-avatar { width: 62px; height: 62px; border-radius: 50%; margin: 0 auto 10px; display: block; object-fit: cover; border: 1.5px solid var(--cream-dark); background: var(--cream-dark); }
+  .worker-avail-badge { position: absolute; top: 14px; right: 14px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid white; }
+  .worker-avail-badge.avail { background: var(--green-badge); }
+  .worker-avail-badge.busy { background: #FF9800; }
+  .worker-avail-badge.off { background: #ccc; }
+  .worker-name { font-weight: 600; font-size: 14px; text-align: center; color: var(--charcoal); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .worker-category { font-size: 11px; text-align: center; color: var(--amber); font-weight: 600; letter-spacing: 0.04em; margin-bottom: 8px; text-transform: uppercase; }
+  .worker-stars { display: flex; justify-content: center; gap: 2px; margin-bottom: 6px; }
+  .star { font-size: 13px; }
+  .star.filled { color: var(--star); }
+  .star.empty { color: #ddd; }
+  .worker-meta { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+  .meta-chip { font-size: 10px; padding: 3px 8px; border-radius: 10px; background: var(--cream); color: var(--charcoal-mid); font-weight: 500; }
