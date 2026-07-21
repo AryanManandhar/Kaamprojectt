@@ -19,16 +19,28 @@ kam-app.html + auth-social.js --fetch--> Express API (server.js) --SQL--> MySQL 
 ### 1. Set up the database
 
 ```bash
-mysql -u root -p < kam-backend/sql/schema.sql
+mysql -u root -p < schema.sql
 ```
 
 This creates a `kam_app` database with one `users` table (id, name, email,
 password_hash, oauth_provider, oauth_id, created_at).
 
+```bash
+mysql -u root -p kam_app < migration_oauth.sql
+```
+
+Run this ONCE against your existing kam_app database to add OAuth support
+without losing your current users.
+
+```bash
+node seed-workers.js
+```
+
+Run this to generate random workers
+
 ### 2. Configure the backend
 
 ```bash
-cd kam-backend
 cp .env.example .env
 ```
 
@@ -48,6 +60,19 @@ You should see:
 ```
 Kam API running on http://localhost:4000
 ```
+For Google login:
+
+```bash
+npm install google-auth-library
+npm run serve
+```
+
+You should see:
+```
+Kam frontend running at http://localhost:5500
+```
+Open that URL in your browser (not the .html file directly)
+so Google login works correctly.
 
 ### 4. Open the app
 
@@ -89,14 +114,3 @@ kam-backend/
     migration_oauth.sql          run against an existing DB to add OAuth support
 ```
 
-## Notes / next steps
-
-- The worker listings on the dashboard are still randomly generated in the
-  browser (not from the database) — only auth is real for now. Happy to wire
-  up real worker data next if useful.
-- Login is currently email/password or Google only (Facebook, Apple, and
-  Phone Number sign-in have been removed).
-- For production: serve the HTML over HTTPS, set a strong `JWT_SECRET`, and
-  consider rate-limiting `/api/login` and the OAuth endpoints to slow down
-  abuse.
-"# Kamtesting" 

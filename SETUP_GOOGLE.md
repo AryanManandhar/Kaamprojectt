@@ -12,7 +12,7 @@ do, the placeholder in `.env` and `auth-social.js` won't authenticate anyone.
 4. Under **Authorized JavaScript origins**, add the URL(s) you'll serve
    `kam-app.html` from (e.g. `http://localhost:5500`, and your real domain later).
 5. Copy the **Client ID** into:
-   - `GOOGLE_CLIENT_ID` in `kam-backend/.env` (backend)
+   - `GOOGLE_CLIENT_ID` in `.env` (backend)
    - `SOCIAL_CONFIG.googleClientId` in `auth-social.js` (frontend)
    - No client secret needed for this flow.
 
@@ -21,20 +21,19 @@ do, the placeholder in `.env` and `auth-social.js` won't authenticate anyone.
 If you already have a `kam_app` database with users in it:
 
 ```bash
-mysql -u root -p kam_app < kam-backend/sql/migration_oauth.sql
+mysql -u root -p kam_app < migration_oauth.sql
 ```
 
-If you're setting up fresh, just use `kam-backend/sql/schema.sql` (it already
+If you're setting up fresh, just use `schema.sql` (it already
 includes the OAuth columns):
 
 ```bash
-mysql -u root -p < kam-backend/sql/schema.sql
+mysql -u root -p < schema.sql
 ```
 
 ## 3. Install backend dependencies
 
 ```bash
-cd kam-backend
 npm install
 ```
 
@@ -43,7 +42,6 @@ npm install
 ## 4. Start the backend and open the app
 
 ```bash
-cd kam-backend
 cp .env.example .env   # then fill in the value from step 1
 npm start
 ```

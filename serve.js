@@ -63,6 +63,4 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, () => {
   console.log(`\n  Kam frontend running at http://localhost:${PORT}`);
-  console.log(`  Open that URL in your browser (not the .html file directly)`);
-  console.log(`  so Google/Facebook login work correctly.\n`);
 });
