@@ -1,16 +1,14 @@
 /**
  * auth-social.js
  * ----------------------------------------------------------------
- * Wires up the Google / Facebook buttons in kam-app.html to their
- * official SDKs, then sends the resulting token to your backend
- * (server.js) to be verified and exchanged for your app's own JWT.
+ * Wires up the Google button in kam-app.html to its official SDK,
+ * then sends the resulting token to your backend (server.js) to be
+ * verified and exchanged for your app's own JWT.
  *
  * SETUP (do this before it will work):
- *   1. Fill in the two config values below (CLIENT IDs), which are
+ *   1. Fill in the config value below (CLIENT ID), which is
  *      public and safe to ship in frontend code.
  *   2. Point API_BASE at wherever server.js is running.
- *   3. See SETUP_GOOGLE_FACEBOOK.md for how to register the apps
- *      with Google and Facebook to get those client IDs.
  * ----------------------------------------------------------------
  */
 
@@ -19,7 +17,6 @@ window.API_BASE = API_BASE; // shared with the inline email/password form in kam
 
 const SOCIAL_CONFIG = {
   googleClientId: '383018510573-mjudgsq160dv93gpbmlaob2g52qhfl9a.apps.googleusercontent.com',
-  facebookAppId: 'your-facebook-app-id',
 };
 
 // ---------- shared helper: hand off to the same place your existing
@@ -67,45 +64,6 @@ function initGoogleLogin() {
   }
 }
 
-// ========================== FACEBOOK ==========================
-window.fbAsyncInit = function () {
-  FB.init({
-    appId: SOCIAL_CONFIG.facebookAppId,
-    cookie: true,
-    xfbml: false,
-    version: 'v20.0',
-  });
-};
-
-function initFacebookLogin() {
-  const btn = document.getElementById('btn-facebook');
-  if (!btn) return;
-  btn.addEventListener('click', () => {
-    if (!window.FB) {
-      alert('Facebook SDK is still loading, please try again in a moment.');
-      return;
-    }
-    FB.login(
-      async (response) => {
-        if (response.authResponse) {
-          try {
-            const res = await fetch(`${API_BASE}/api/auth/facebook`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ accessToken: response.authResponse.accessToken }),
-            });
-            handleAuthSuccess(await res.json());
-          } catch (err) {
-            console.error('Facebook sign-in error:', err);
-            alert('Could not reach the sign-in server.');
-          }
-        }
-      },
-      { scope: 'public_profile,email' }
-    );
-  });
-}
-
 // ============================ INIT ============================
 document.addEventListener('DOMContentLoaded', () => {
   // Google's SDK loads async; retry briefly if it hasn't attached to window yet.
@@ -119,5 +77,4 @@ document.addEventListener('DOMContentLoaded', () => {
       else if (attempts > 20) { clearInterval(timer); } // ~10s, then give up quietly
     }, 500);
   }
-  initFacebookLogin(); // FB object is created async by the SDK script itself
 });
