@@ -84,3 +84,23 @@ CREATE TABLE IF NOT EXISTS bookings (
     FOREIGN KEY (user_id) REFERENCES users(id)
         ON DELETE CASCADE
 );
+
+-- ==========================
+-- PAYMENTS
+-- ==========================
+CREATE TABLE IF NOT EXISTS payments (
+  id                INT AUTO_INCREMENT PRIMARY KEY,
+  booking_id        INT NOT NULL,
+  user_id           INT NOT NULL,               -- the hirer, i.e. who is paying
+  amount            DECIMAL(10, 2) NOT NULL,
+  provider          ENUM('esewa', 'khalti') NOT NULL,
+  status            ENUM('pending', 'success', 'failed') NOT NULL DEFAULT 'pending',
+  transaction_uuid  VARCHAR(64) NOT NULL UNIQUE, -- our own reference, sent to the gateway
+  gateway_ref       VARCHAR(191) NULL,           -- eSewa ref_id / Khalti transaction_id
+  raw_response      TEXT NULL,                   -- last gateway response, for debugging/support
+  created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (booking_id) REFERENCES bookings(id),
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  INDEX idx_payments_booking (booking_id)
+);
