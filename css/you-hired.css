@@ -29,3 +29,11 @@
   .hired-status-completed { background: #E8F5E9; color: #388E3C; }
   .hired-status-cancelled { background: #FFEBEE; color: #D32F2F; }
   .no-hired-msg { color: var(--charcoal-mid); font-size: 13px; padding: 12px 0; text-align: center; }
+  .pay-now-btn { margin-top: 10px; width: 100%; padding: 10px; border-radius: 10px; border: none; background: linear-gradient(135deg, var(--amber) 0%, var(--terra) 100%); color: white; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .pay-now-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(200,104,26,0.4); }
+  .pay-now-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .pay-provider-btn { width: 100%; padding: 14px; margin-bottom: 12px; border-radius: 12px; border: 1px solid var(--border); background: white; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.2s; }
+  .pay-provider-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(44,36,23,0.12); }
+  .pay-provider-esewa { color: #60BB46; border-color: #60BB46; }
+  .pay-provider-khalti { color: #5C2D91; border-color: #5C2D91; }
+  .pay-amount-display { text-align: center; font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--charcoal); margin-bottom: 20px; }

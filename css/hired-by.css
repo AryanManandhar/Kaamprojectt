@@ -29,4 +29,22 @@
   .hired-by-status-completed { background: #E8F5E9; color: #388E3C; }
   .hired-by-status-cancelled { background: #FFEBEE; color: #D32F2F; }
   .no-hired-by-msg { color: var(--charcoal-mid); font-size: 13px; padding: 12px 0; text-align: center; }
+  .mark-complete-btn {
+    width: 100%;
+    margin-top: 12px;
+    padding: 13px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--amber) 0%, var(--terra) 100%);
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(200,104,26,0.35);
+    transition: all 0.2s;
+  }
+  .mark-complete-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(200,104,26,0.45); }
+  .mark-complete-btn:active { transform: translateY(0); }
 
