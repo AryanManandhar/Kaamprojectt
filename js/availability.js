@@ -74,3 +74,4 @@ async function toggleAvail() {
     toast('Could not reach server.');
   }
 }
+

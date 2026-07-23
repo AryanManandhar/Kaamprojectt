@@ -7,8 +7,14 @@ async function submitAuthForm() {
   if (!email || !password) { showAuthError('Please enter email and password.'); return; }
   if (isSignupMode && !name) { showAuthError('Please enter your name.'); return; }
 
+  // 🔒 Hash password in the browser before it ever touches the network.
+  // "hello123" -> "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824"
+  const hashedPassword = await sha256(password);
+
   const endpoint = isSignupMode ? '/api/signup' : '/api/login';
-  const body = isSignupMode ? { name, email, password } : { email, password };
+  const body = isSignupMode
+    ? { name, email, password: hashedPassword }
+    : { email, password: hashedPassword };
 
   try {
     const res = await fetch(`${window.API_BASE || 'http://localhost:4000'}${endpoint}`, {

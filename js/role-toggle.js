@@ -25,6 +25,7 @@ function toggleRole() {
     loadMyPostedJobs();
     loadHiredBy();
     loadWorkerAvailability();
+    loadWorkerEarnings();
     userSection.style.display = 'none';
     navActions.innerHTML = '<button class="bottom-btn btn-post" onclick="openPostJobModal()">+ Post a Job</button>';
   } else {
@@ -41,3 +42,4 @@ function toggleRole() {
     navActions.innerHTML = '';
   }
 }
+

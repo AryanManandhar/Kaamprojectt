@@ -53,3 +53,4 @@ const AVATAR_POOL = [
   'https://randomuser.me/api/portraits/men/71.jpg',
   'https://randomuser.me/api/portraits/women/38.jpg',
 ];
+

@@ -24,6 +24,8 @@ async function loadYouHired() {
         year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
       });
       const statusClass = `hired-status-${b.status}`;
+      const showPayButton = b.status === 'completed' && b.payment_status === 'unpaid';
+      const showPaidBadge = b.payment_status === 'paid';
       return `
         <div class="hired-card">
           <div class="hired-worker-name">${b.worker_name}</div>
@@ -36,7 +38,11 @@ async function loadYouHired() {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             Hired on: ${hiredDate}
           </div>
-          <span class="hired-status ${statusClass}">${b.status}</span>
+          <div class="hired-meta-row" style="margin-top:8px;">
+            <span class="hired-status ${statusClass}">${b.status}</span>
+            ${showPaidBadge ? `<span class="hired-status hired-status-completed">paid</span>` : ''}
+          </div>
+          ${showPayButton ? `<button class="pay-now-btn" onclick="openPaymentModal(${b.id}, ${b.budget || 'null'})">Pay Now${b.budget ? ` — Rs ${b.budget}` : ''}</button>` : ''}
         </div>
       `;
     }).join('');
@@ -46,3 +52,4 @@ async function loadYouHired() {
   }
 }
 
+// ===================== Payments (eSewa / Khalti) =====================

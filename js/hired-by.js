@@ -24,6 +24,7 @@ async function loadHiredBy() {
         year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
       });
       const statusClass = `hired-by-status-${b.status}`;
+      const showCompleteButton = b.status === 'confirmed';
       return `
         <div class="hired-by-card">
           <div class="hired-by-name">${b.hirer_name}</div>
@@ -37,6 +38,7 @@ async function loadHiredBy() {
             Hired on: ${hiredDate}
           </div>
           <span class="hired-by-status ${statusClass}">${b.status}</span>
+          ${showCompleteButton ? `<button class="pay-now-btn" onclick="markJobComplete(${b.id})">Mark Job Complete</button>` : ''}
         </div>
       `;
     }).join('');

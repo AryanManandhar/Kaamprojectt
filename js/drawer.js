@@ -6,3 +6,4 @@ function closeDrawer() {
   document.getElementById('side-drawer').classList.remove('open');
   document.getElementById('drawer-overlay').classList.remove('open');
 }
+

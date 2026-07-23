@@ -18,3 +18,4 @@ function openModal(idx) {
 }
 function closeModal(e) { if(e.target === document.getElementById('modal-overlay')) closeModalDirect(); }
 function closeModalDirect() { document.getElementById('modal-overlay').classList.remove('open'); }
+
