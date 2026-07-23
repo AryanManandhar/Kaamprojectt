@@ -3,27 +3,36 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Kam Admin — Users</title>
+<title>Kam Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <style>
   :root {
-    --bg: #0f1215;
-    --panel: #171b1f;
-    --panel-2: #1e2328;
-    --border: #2a3038;
-    --text: #e7eaee;
-    --text-dim: #8a92a0;
-    --accent: #4f8cff;
-    --danger: #e5484d;
-    --danger-dim: #3a1f21;
-    --mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    --bg: #F5F7FA;
+    --surface: #FFFFFF;
+    --border: #E3E7ED;
+    --text: #10151C;
+    --text-dim: #626C7A;
+    --accent: #0F766E;
+    --accent-dark: #0B5A54;
+    --accent-light: #E6F5F3;
+    --danger: #DC2626;
+    --danger-light: #FDEBEB;
+    --warning: #D97706;
+    --warning-light: #FDF2E2;
+    --success: #16A34A;
+    --success-light: #E9F8EE;
+    --info: #2563EB;
+    --info-light: #EAF1FE;
+    --radius: 14px;
+    --sidebar-w: 232px;
   }
   * { box-sizing: border-box; }
-  body {
+  html, body {
     margin: 0;
     background: var(--bg);
     color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    min-height: 100vh;
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    font-size: 15.5px;
   }
 
   /* ---------- Login gate ---------- */
@@ -32,209 +41,289 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    background: linear-gradient(160deg, #0B5A54 0%, #0F766E 45%, #14958A 100%);
   }
   #login-box {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 36px 32px;
-    width: 320px;
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 44px 40px;
+    width: 340px;
     text-align: center;
+    box-shadow: 0 30px 60px rgba(11, 90, 84, 0.35);
   }
   #login-box .eyebrow {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.12em;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     color: var(--accent);
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
-  #login-box h1 {
-    font-size: 20px;
-    margin: 0 0 22px;
-    font-weight: 600;
-  }
+  #login-box h1 { font-size: 24px; margin: 0 0 26px; font-weight: 800; letter-spacing: -0.01em; }
   #login-box input {
     width: 100%;
-    padding: 11px 12px;
-    background: var(--panel-2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    padding: 13px 14px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
     color: var(--text);
-    font-size: 14px;
+    font-size: 15px;
     outline: none;
   }
   #login-box input:focus { border-color: var(--accent); }
   #login-box button {
     width: 100%;
-    margin-top: 12px;
-    padding: 11px 12px;
+    margin-top: 14px;
+    padding: 13px 14px;
     background: var(--accent);
     border: none;
-    border-radius: 6px;
+    border-radius: 10px;
     color: #fff;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  #login-box button:hover { opacity: 0.92; }
-  #login-error {
-    color: var(--danger);
-    font-size: 12.5px;
-    margin-top: 12px;
-    min-height: 16px;
-  }
-
-  /* ---------- Dashboard ---------- */
-  #dashboard { display: none; max-width: 980px; margin: 0 auto; padding: 40px 24px 80px; }
-  header.top {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    margin-bottom: 28px;
-  }
-  header.top .eyebrow {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--accent);
-  }
-  header.top h1 { font-size: 24px; margin: 4px 0 0; font-weight: 600; }
-  #logout-btn {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--text-dim);
-    border-radius: 6px;
-    padding: 7px 14px;
-    font-size: 13px;
-    cursor: pointer;
-  }
-  #logout-btn:hover { color: var(--text); border-color: var(--text-dim); }
-
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 28px;
-  }
-  .stat-card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 16px 18px;
-  }
-  .stat-card .num {
-    font-family: var(--mono);
-    font-size: 26px;
+    font-size: 15px;
     font-weight: 700;
+    cursor: pointer;
   }
-  .stat-card .label {
-    font-size: 12px;
-    color: var(--text-dim);
-    margin-top: 4px;
-  }
+  #login-box button:hover { background: var(--accent-dark); }
+  #login-error { color: var(--danger); font-size: 13px; margin-top: 14px; min-height: 16px; font-weight: 600; }
 
-  .table-wrap {
-    background: var(--panel);
-    border: 1px solid var(--border);
+  /* ---------- App shell ---------- */
+  #dashboard { display: none; min-height: 100vh; }
+  #app-shell { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  #sidebar {
+    width: var(--sidebar-w);
+    flex-shrink: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 26px 16px;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; padding: 0 8px 26px; }
+  .brand-mark {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 16px;
+  }
+  .brand-text { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; }
+  .brand-text span { display:block; font-size: 11px; font-weight: 700; color: var(--text-dim); letter-spacing: 0.06em; text-transform: uppercase; }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 14px;
     border-radius: 10px;
+    color: var(--text-dim);
+    font-weight: 700;
+    font-size: 14.5px;
+    cursor: pointer;
+    margin-bottom: 3px;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+  }
+  .nav-item svg { flex-shrink: 0; }
+  .nav-item:hover { background: var(--bg); color: var(--text); }
+  .nav-item.active { background: var(--accent-light); color: var(--accent-dark); }
+
+  #sidebar-footer { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); }
+  #logout-btn {
+    width: 100%;
+    background: none;
+    border: 1.5px solid var(--border);
+    color: var(--text-dim);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  #logout-btn:hover { color: var(--danger); border-color: var(--danger-light); background: var(--danger-light); }
+
+  /* Main content */
+  #main { flex: 1; padding: 32px 40px 60px; max-width: 1240px; }
+  #page-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 26px; }
+  #page-title { font-size: 30px; font-weight: 800; letter-spacing: -0.015em; margin: 0; }
+  #page-subtitle { color: var(--text-dim); font-size: 14.5px; font-weight: 600; margin-top: 4px; }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* Stat cards */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .stats-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+  }
+  .stat-card .stat-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 14px;
+  }
+  .stat-card .num { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; line-height: 1; }
+  .stat-card .label { font-size: 13.5px; color: var(--text-dim); font-weight: 700; margin-top: 6px; }
+
+  /* Charts grid */
+  .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+  }
+  .chart-card h3 { margin: 0 0 4px; font-size: 16px; font-weight: 800; }
+  .chart-card .chart-sub { font-size: 12.5px; color: var(--text-dim); font-weight: 600; margin-bottom: 14px; }
+  .chart-wrap { position: relative; height: 220px; }
+  .chart-wrap.tall { height: 260px; }
+
+  /* Table card */
+  .table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
     overflow: hidden;
   }
   .table-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 18px;
+    padding: 16px 22px;
     border-bottom: 1px solid var(--border);
+    gap: 12px;
   }
   .table-head input {
-    background: var(--panel-2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 9px;
     color: var(--text);
-    padding: 7px 10px;
-    font-size: 13px;
-    width: 220px;
+    padding: 9px 12px;
+    font-size: 14px;
+    width: 260px;
     outline: none;
+    font-weight: 500;
   }
   .table-head input:focus { border-color: var(--accent); }
-  #refresh-btn {
-    background: none;
-    border: 1px solid var(--border);
-    color: var(--text-dim);
-    border-radius: 6px;
-    padding: 7px 12px;
-    font-size: 13px;
+  .refresh-btn {
+    background: var(--accent-light);
+    border: none;
+    color: var(--accent-dark);
+    border-radius: 9px;
+    padding: 9px 16px;
+    font-size: 13.5px;
+    font-weight: 700;
     cursor: pointer;
+    white-space: nowrap;
   }
-  #refresh-btn:hover { color: var(--text); }
+  .refresh-btn:hover { background: var(--accent); color: #fff; }
 
-  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14.5px; }
   thead th {
     text-align: left;
-    font-size: 11px;
+    font-size: 11.5px;
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--text-dim);
-    font-weight: 600;
-    padding: 10px 18px;
-    border-bottom: 1px solid var(--border);
+    font-weight: 800;
+    padding: 12px 22px;
+    border-bottom: 1.5px solid var(--border);
+    white-space: nowrap;
+    background: #FAFBFC;
   }
   tbody td {
-    padding: 12px 18px;
+    padding: 14px 22px;
     border-bottom: 1px solid var(--border);
     vertical-align: middle;
+    font-weight: 500;
   }
   tbody tr:last-child td { border-bottom: none; }
-  tbody tr:hover { background: var(--panel-2); }
+  tbody tr:hover { background: #FAFBFC; }
+
   .badge {
     display: inline-block;
-    font-family: var(--mono);
-    font-size: 11px;
-    padding: 3px 8px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 11px;
     border-radius: 999px;
-    border: 1px solid var(--border);
-    color: var(--text-dim);
+    white-space: nowrap;
   }
-  .badge.google { color: #7fb1ff; border-color: #2c4a75; }
-  .badge.facebook { color: #8fa9ff; border-color: #2c3a75; }
-  .badge.password { color: #7fd88f; border-color: #2c5b3a; }
-  td.email { color: var(--text-dim); }
-  td.date { color: var(--text-dim); font-family: var(--mono); font-size: 12px; white-space: nowrap; }
+  .badge.google { color: #2563EB; background: var(--info-light); }
+  .badge.facebook { color: #4338CA; background: #EEF0FE; }
+  .badge.password { color: var(--success); background: var(--success-light); }
+  .badge.avail, .badge.open, .badge.confirmed, .badge.success, .badge.paid { color: var(--success); background: var(--success-light); }
+  .badge.busy, .badge.accepted, .badge.pending { color: var(--warning); background: var(--warning-light); }
+  .badge.off, .badge.declined, .badge.cancelled, .badge.unpaid { color: var(--text-dim); background: var(--bg); }
+  .badge.completed { color: var(--info); background: var(--info-light); }
+  .badge.failed { color: var(--danger); background: var(--danger-light); }
+  .badge.esewa { color: #16A34A; background: var(--success-light); }
+  .badge.khalti { color: #7C3AED; background: #F3E8FD; }
+
+  td.email, td.dim { color: var(--text-dim); font-weight: 500; }
+  td.name-cell { font-weight: 700; }
+  td.date { color: var(--text-dim); font-size: 13px; white-space: nowrap; font-weight: 600; }
+  td.amount-cell { font-weight: 800; font-variant-numeric: tabular-nums; }
+
   .del-btn {
     background: none;
-    border: 1px solid var(--border);
+    border: 1.5px solid var(--danger-light);
     color: var(--danger);
-    border-radius: 6px;
-    padding: 5px 10px;
-    font-size: 12px;
+    border-radius: 8px;
+    padding: 6px 13px;
+    font-size: 12.5px;
+    font-weight: 700;
     cursor: pointer;
+    white-space: nowrap;
   }
-  .del-btn:hover { background: var(--danger-dim); border-color: var(--danger); }
+  .del-btn:hover { background: var(--danger); border-color: var(--danger); color: #fff; }
 
-  #empty-state, #loading-state {
-    padding: 48px 18px;
+  select.avail-select {
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .empty-state, .loading-state {
+    padding: 56px 18px;
     text-align: center;
     color: var(--text-dim);
-    font-size: 13.5px;
+    font-size: 14.5px;
+    font-weight: 600;
   }
+
   #toast {
     position: fixed;
-    bottom: 24px;
+    bottom: 26px;
     left: 50%;
     transform: translateX(-50%) translateY(20px);
-    background: var(--panel-2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 10px 18px;
-    border-radius: 8px;
-    font-size: 13px;
+    background: var(--text);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
     opacity: 0;
     transition: opacity 0.2s, transform 0.2s;
     pointer-events: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
   }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 900px) {
+    .stats-row, .stats-row.cols-3 { grid-template-columns: repeat(2, 1fr); }
+    .charts-row { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
@@ -252,61 +341,291 @@
 
   <!-- DASHBOARD -->
   <div id="dashboard">
-    <header class="top">
-      <div>
-        <div class="eyebrow">Kam Admin</div>
-        <h1>Users</h1>
-      </div>
-      <button id="logout-btn">Log out</button>
-    </header>
+    <div id="app-shell">
+      <div id="sidebar">
+        <div class="brand">
+          <div class="brand-mark">K</div>
+          <div class="brand-text">Kam<span>Admin Panel</span></div>
+        </div>
 
-    <div class="stats">
-      <div class="stat-card"><div class="num" id="stat-total">—</div><div class="label">Total users</div></div>
-      <div class="stat-card"><div class="num" id="stat-password">—</div><div class="label">Password accounts</div></div>
-      <div class="stat-card"><div class="num" id="stat-oauth">—</div><div class="label">Google / Facebook accounts</div></div>
-    </div>
+        <button class="nav-item active" data-tab="overview">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+          Overview
+        </button>
+        <button class="nav-item" data-tab="users">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Users
+        </button>
+        <button class="nav-item" data-tab="workers">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          Workers
+        </button>
+        <button class="nav-item" data-tab="jobs">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          Jobs
+        </button>
+        <button class="nav-item" data-tab="bookings">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          Bookings
+        </button>
+        <button class="nav-item" data-tab="payments">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg>
+          Payments
+        </button>
 
-    <div class="table-wrap">
-      <div class="table-head">
-        <input type="text" id="search-input" placeholder="Search by name or email…" />
-        <button id="refresh-btn">Refresh</button>
+        <div id="sidebar-footer">
+          <button id="logout-btn">Log out</button>
+        </div>
       </div>
-      <div id="loading-state">Loading users…</div>
-      <div id="empty-state" style="display:none;">No users found.</div>
-      <table id="users-table" style="display:none;">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Sign-in method</th>
-            <th>Joined</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="users-tbody"></tbody>
-      </table>
+
+      <div id="main">
+        <div id="page-header">
+          <div>
+            <h1 id="page-title">Overview</h1>
+            <div id="page-subtitle">A snapshot of everything happening in Kam right now</div>
+          </div>
+        </div>
+
+        <!-- ===================== OVERVIEW ===================== -->
+        <section class="panel active" id="panel-overview">
+          <div class="stats-row">
+            <div class="stat-card">
+              <div class="stat-icon" style="background:var(--accent-light);color:var(--accent-dark);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              </div>
+              <div class="num" id="ov-total-users">—</div>
+              <div class="label">Total users</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:var(--info-light);color:var(--info);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              </div>
+              <div class="num" id="ov-total-workers">—</div>
+              <div class="label">Total workers</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:var(--warning-light);color:var(--warning);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+              </div>
+              <div class="num" id="ov-total-jobs">—</div>
+              <div class="label">Total jobs posted</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:var(--success-light);color:var(--success);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+              </div>
+              <div class="num" id="ov-total-revenue">—</div>
+              <div class="label">Revenue collected (Rs)</div>
+            </div>
+          </div>
+
+          <div class="charts-row">
+            <div class="chart-card">
+              <h3>Sign-in methods</h3>
+              <div class="chart-sub">How users are authenticating</div>
+              <div class="chart-wrap"><canvas id="chart-signin"></canvas></div>
+            </div>
+            <div class="chart-card">
+              <h3>Worker availability</h3>
+              <div class="chart-sub">Current status across all workers</div>
+              <div class="chart-wrap"><canvas id="chart-availability"></canvas></div>
+            </div>
+            <div class="chart-card">
+              <h3>Job status breakdown</h3>
+              <div class="chart-sub">Where posted jobs currently stand</div>
+              <div class="chart-wrap"><canvas id="chart-jobstatus"></canvas></div>
+            </div>
+            <div class="chart-card">
+              <h3>Booking status breakdown</h3>
+              <div class="chart-sub">Confirmed, completed, and cancelled hires</div>
+              <div class="chart-wrap"><canvas id="chart-bookingstatus"></canvas></div>
+            </div>
+          </div>
+
+          <div class="charts-row">
+            <div class="chart-card">
+              <h3>Payments by provider</h3>
+              <div class="chart-sub">eSewa vs Khalti transaction count</div>
+              <div class="chart-wrap"><canvas id="chart-paymentprovider"></canvas></div>
+            </div>
+            <div class="chart-card">
+              <h3>Payment status</h3>
+              <div class="chart-sub">Success, pending, and failed attempts</div>
+              <div class="chart-wrap"><canvas id="chart-paymentstatus"></canvas></div>
+            </div>
+          </div>
+
+          <div class="chart-card">
+            <h3>Top worker categories</h3>
+            <div class="chart-sub">Worker count by service category</div>
+            <div class="chart-wrap tall"><canvas id="chart-categories"></canvas></div>
+          </div>
+        </section>
+
+        <!-- ===================== USERS ===================== -->
+        <section class="panel" id="panel-users">
+          <div class="table-wrap">
+            <div class="table-head">
+              <input type="text" id="users-search" placeholder="Search by name or email…" />
+              <button class="refresh-btn" data-refresh="users">Refresh</button>
+            </div>
+            <div class="loading-state" id="users-loading">Loading users…</div>
+            <div class="empty-state" id="users-empty" style="display:none;">No users found.</div>
+            <table id="users-table" style="display:none;">
+              <thead><tr><th>Name</th><th>Email</th><th>Sign-in method</th><th>Joined</th><th></th></tr></thead>
+              <tbody id="users-tbody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ===================== WORKERS ===================== -->
+        <section class="panel" id="panel-workers">
+          <div class="table-wrap">
+            <div class="table-head">
+              <input type="text" id="workers-search" placeholder="Search by name or category…" />
+              <button class="refresh-btn" data-refresh="workers">Refresh</button>
+            </div>
+            <div class="loading-state" id="workers-loading">Loading workers…</div>
+            <div class="empty-state" id="workers-empty" style="display:none;">No workers found.</div>
+            <table id="workers-table" style="display:none;">
+              <thead><tr><th>Name</th><th>Category</th><th>Rating</th><th>Jobs done</th><th>Availability</th><th></th></tr></thead>
+              <tbody id="workers-tbody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ===================== JOBS ===================== -->
+        <section class="panel" id="panel-jobs">
+          <div class="table-wrap">
+            <div class="table-head">
+              <input type="text" id="jobs-search" placeholder="Search by title or poster…" />
+              <button class="refresh-btn" data-refresh="jobs">Refresh</button>
+            </div>
+            <div class="loading-state" id="jobs-loading">Loading jobs…</div>
+            <div class="empty-state" id="jobs-empty" style="display:none;">No jobs found.</div>
+            <table id="jobs-table" style="display:none;">
+              <thead><tr><th>Title</th><th>Category</th><th>Posted by</th><th>Status</th><th>Created</th><th></th></tr></thead>
+              <tbody id="jobs-tbody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ===================== BOOKINGS ===================== -->
+        <section class="panel" id="panel-bookings">
+          <div class="table-wrap">
+            <div class="table-head">
+              <input type="text" id="bookings-search" placeholder="Search by job, hirer, or worker…" />
+              <button class="refresh-btn" data-refresh="bookings">Refresh</button>
+            </div>
+            <div class="loading-state" id="bookings-loading">Loading bookings…</div>
+            <div class="empty-state" id="bookings-empty" style="display:none;">No bookings found.</div>
+            <table id="bookings-table" style="display:none;">
+              <thead><tr><th>Job</th><th>Hired by</th><th>Worker</th><th>Status</th><th>Payment</th><th>Created</th><th></th></tr></thead>
+              <tbody id="bookings-tbody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ===================== PAYMENTS ===================== -->
+        <section class="panel" id="panel-payments">
+          <div class="stats-row cols-3">
+            <div class="stat-card">
+              <div class="stat-icon" style="background:var(--success-light);color:var(--success);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+              </div>
+              <div class="num" id="pay-total-revenue">—</div>
+              <div class="label">Rs collected (successful)</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:var(--warning-light);color:var(--warning);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <div class="num" id="pay-pending-count">—</div>
+              <div class="label">Pending payments</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:var(--danger-light);color:var(--danger);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              </div>
+              <div class="num" id="pay-failed-count">—</div>
+              <div class="label">Failed attempts</div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <div class="table-head">
+              <input type="text" id="payments-search" placeholder="Search by job, hirer, or worker…" />
+              <button class="refresh-btn" data-refresh="payments">Refresh</button>
+            </div>
+            <div class="loading-state" id="payments-loading">Loading payments…</div>
+            <div class="empty-state" id="payments-empty" style="display:none;">No payments found.</div>
+            <table id="payments-table" style="display:none;">
+              <thead><tr><th>Job</th><th>Hired by</th><th>Worker</th><th>Amount</th><th>Provider</th><th>Status</th><th>Gateway ref</th><th>Created</th><th></th></tr></thead>
+              <tbody id="payments-tbody"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
     </div>
   </div>
 
   <div id="toast"></div>
 
 <script>
-  const state = { password: sessionStorage.getItem('kam_admin_pw') || '', users: [] };
+  const state = {
+    password: sessionStorage.getItem('kam_admin_pw') || '',
+    users: [], workers: [], jobs: [], bookings: [], payments: [],
+  };
+  const charts = {};
+
+  const CHART_COLORS = {
+    teal: '#0F766E', tealLight: '#5EEAD4',
+    blue: '#2563EB', blueLight: '#93C5FD',
+    amber: '#D97706', amberLight: '#FCD34D',
+    green: '#16A34A', greenLight: '#86EFAC',
+    gray: '#9CA3AF', red: '#DC2626', indigo: '#4338CA', purple: '#7C3AED',
+  };
 
   const loginScreen = document.getElementById('login-screen');
   const dashboard = document.getElementById('dashboard');
   const passwordInput = document.getElementById('password-input');
   const loginBtn = document.getElementById('login-btn');
   const loginError = document.getElementById('login-error');
-  const searchInput = document.getElementById('search-input');
-  const refreshBtn = document.getElementById('refresh-btn');
   const logoutBtn = document.getElementById('logout-btn');
+  const pageTitle = document.getElementById('page-title');
+  const pageSubtitle = document.getElementById('page-subtitle');
+
+  const TAB_META = {
+    overview: { title: 'Overview', sub: 'A snapshot of everything happening in Kam right now' },
+    users: { title: 'Users', sub: 'Everyone with an account in Kam' },
+    workers: { title: 'Workers', sub: 'Service providers listed on the platform' },
+    jobs: { title: 'Jobs', sub: 'Job postings created by workers' },
+    bookings: { title: 'Bookings', sub: 'Confirmed hires between users and workers' },
+    payments: { title: 'Payments', sub: 'eSewa and Khalti transactions for completed bookings' },
+  };
 
   function showToast(msg) {
     const t = document.getElementById('toast');
     t.textContent = msg;
     t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str == null ? '' : str;
+    return div.innerHTML;
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  }
+
+  function formatMoney(n) {
+    const num = Number(n) || 0;
+    return num.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
   }
 
   async function apiRequest(path, options = {}) {
@@ -338,8 +657,12 @@
   function showDashboard() {
     loginScreen.style.display = 'none';
     dashboard.style.display = 'block';
-    loadStats();
-    loadUsers();
+    loadAll();
+  }
+
+  async function loadAll() {
+    await Promise.all([loadStats(), loadUsers(), loadWorkers(), loadJobs(), loadBookings(), loadPayments()]);
+    renderCharts();
   }
 
   async function attemptLogin() {
@@ -370,128 +693,440 @@
 
   loginBtn.addEventListener('click', attemptLogin);
   passwordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') attemptLogin(); });
-
   logoutBtn.addEventListener('click', () => {
     sessionStorage.removeItem('kam_admin_pw');
     state.password = '';
     showLogin();
   });
 
+  // ---------------- Nav ----------------
+  document.querySelectorAll('.nav-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+      const meta = TAB_META[btn.dataset.tab];
+      pageTitle.textContent = meta.title;
+      pageSubtitle.textContent = meta.sub;
+    });
+  });
+
+  document.querySelectorAll('[data-refresh]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const which = btn.dataset.refresh;
+      if (which === 'users') { await loadStats(); await loadUsers(); }
+      if (which === 'workers') await loadWorkers();
+      if (which === 'jobs') await loadJobs();
+      if (which === 'bookings') await loadBookings();
+      if (which === 'payments') await loadPayments();
+      renderCharts();
+    });
+  });
+
+  // ==================================================
+  // OVERVIEW STATS + CHARTS
+  // ==================================================
   async function loadStats() {
     try {
       const data = await apiRequest('/api/admin/stats');
       if (data.success) {
-        document.getElementById('stat-total').textContent = data.stats.total;
-        document.getElementById('stat-password').textContent = data.stats.withPassword;
-        document.getElementById('stat-oauth').textContent = data.stats.oauthUsers;
+        document.getElementById('ov-total-users').textContent = data.stats.total;
       }
-    } catch (e) { /* handled in apiRequest */ }
+    } catch (e) {}
   }
 
+  function countBy(list, key) {
+    const counts = {};
+    list.forEach(item => {
+      const val = item[key] || 'none';
+      counts[val] = (counts[val] || 0) + 1;
+    });
+    return counts;
+  }
+
+  function makeDoughnut(canvasId, labels, data, colors) {
+    if (charts[canvasId]) charts[canvasId].destroy();
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return;
+    charts[canvasId] = new Chart(ctx, {
+      type: 'doughnut',
+      data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 0 }] },
+      options: {
+        maintainAspectRatio: false,
+        cutout: '62%',
+        plugins: { legend: { position: 'bottom', labels: { font: { weight: '600', size: 12 }, padding: 14, boxWidth: 10 } } },
+      },
+    });
+  }
+
+  function makeBar(canvasId, labels, data, color, horizontal) {
+    if (charts[canvasId]) charts[canvasId].destroy();
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return;
+    charts[canvasId] = new Chart(ctx, {
+      type: 'bar',
+      data: { labels, datasets: [{ data, backgroundColor: color, borderRadius: 6, maxBarThickness: 44 }] },
+      options: {
+        indexAxis: horizontal ? 'y' : 'x',
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: !horizontal }, ticks: { font: { weight: '600', size: 12 } } },
+          y: { grid: { display: horizontal }, ticks: { font: { weight: '600', size: 12 } }, beginAtZero: true },
+        },
+      },
+    });
+  }
+
+  function renderCharts() {
+    document.getElementById('ov-total-users').textContent = state.users.length;
+    document.getElementById('ov-total-workers').textContent = state.workers.length;
+    document.getElementById('ov-total-jobs').textContent = state.jobs.length;
+
+    // Sign-in methods
+    const signinCounts = { Password: 0, Google: 0, Facebook: 0 };
+    state.users.forEach(u => {
+      if (!u.oauth_provider) signinCounts.Password++;
+      else if (u.oauth_provider.toLowerCase() === 'google') signinCounts.Google++;
+      else if (u.oauth_provider.toLowerCase() === 'facebook') signinCounts.Facebook++;
+    });
+    makeDoughnut('chart-signin', Object.keys(signinCounts), Object.values(signinCounts),
+      [CHART_COLORS.green, CHART_COLORS.blue, CHART_COLORS.indigo]);
+
+    // Worker availability
+    const availCounts = countBy(state.workers, 'availability');
+    const availLabels = ['avail', 'busy', 'off'].filter(k => availCounts[k] !== undefined);
+    makeDoughnut('chart-availability',
+      availLabels.map(l => l === 'avail' ? 'Available' : l === 'busy' ? 'Busy' : 'Off'),
+      availLabels.map(l => availCounts[l]),
+      [CHART_COLORS.green, CHART_COLORS.amber, CHART_COLORS.gray]);
+
+    // Job status
+    const jobCounts = countBy(state.jobs, 'status');
+    const jobLabels = Object.keys(jobCounts);
+    makeBar('chart-jobstatus',
+      jobLabels.map(l => l.charAt(0).toUpperCase() + l.slice(1)),
+      jobLabels.map(l => jobCounts[l]),
+      CHART_COLORS.teal, false);
+
+    // Booking status
+    const bookingCounts = countBy(state.bookings, 'status');
+    const bookingLabels = Object.keys(bookingCounts);
+    makeBar('chart-bookingstatus',
+      bookingLabels.map(l => l.charAt(0).toUpperCase() + l.slice(1)),
+      bookingLabels.map(l => bookingCounts[l]),
+      CHART_COLORS.blue, false);
+
+    // Worker categories
+    const catCounts = countBy(state.workers, 'category');
+    const catLabels = Object.keys(catCounts).sort((a, b) => catCounts[b] - catCounts[a]);
+    makeBar('chart-categories', catLabels, catLabels.map(l => catCounts[l]), CHART_COLORS.teal, true);
+
+    // Payments — revenue + charts
+    const successfulPayments = state.payments.filter(p => p.status === 'success');
+    const totalRevenue = successfulPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+    document.getElementById('ov-total-revenue').textContent = 'Rs ' + formatMoney(totalRevenue);
+    document.getElementById('pay-total-revenue').textContent = 'Rs ' + formatMoney(totalRevenue);
+    document.getElementById('pay-pending-count').textContent = state.payments.filter(p => p.status === 'pending').length;
+    document.getElementById('pay-failed-count').textContent = state.payments.filter(p => p.status === 'failed').length;
+
+    const providerCounts = countBy(state.payments, 'provider');
+    const providerLabels = Object.keys(providerCounts);
+    makeDoughnut('chart-paymentprovider',
+      providerLabels.map(l => l.charAt(0).toUpperCase() + l.slice(1)),
+      providerLabels.map(l => providerCounts[l]),
+      providerLabels.map(l => l === 'esewa' ? CHART_COLORS.green : CHART_COLORS.purple));
+
+    const payStatusCounts = countBy(state.payments, 'status');
+    const payStatusLabels = Object.keys(payStatusCounts);
+    makeDoughnut('chart-paymentstatus',
+      payStatusLabels.map(l => l.charAt(0).toUpperCase() + l.slice(1)),
+      payStatusLabels.map(l => payStatusCounts[l]),
+      payStatusLabels.map(l => l === 'success' ? CHART_COLORS.green : l === 'pending' ? CHART_COLORS.amber : CHART_COLORS.red));
+  }
+
+  // ==================================================
+  // USERS
+  // ==================================================
   function methodBadge(user) {
     if (user.oauth_provider) {
       const cls = user.oauth_provider.toLowerCase();
-      return `<span class="badge ${cls}">${user.oauth_provider}</span>`;
+      return `<span class="badge ${cls}">${escapeHtml(user.oauth_provider)}</span>`;
     }
     return `<span class="badge password">Password</span>`;
-  }
-
-  function formatDate(iso) {
-    if (!iso) return '—';
-    const d = new Date(iso);
-    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
   }
 
   function renderUsers(list) {
     const tbody = document.getElementById('users-tbody');
     const table = document.getElementById('users-table');
-    const empty = document.getElementById('empty-state');
-
-    if (!list.length) {
-      table.style.display = 'none';
-      empty.style.display = 'block';
-      return;
-    }
-    empty.style.display = 'none';
-    table.style.display = 'table';
-
+    const empty = document.getElementById('users-empty');
+    if (!list.length) { table.style.display = 'none'; empty.style.display = 'block'; return; }
+    empty.style.display = 'none'; table.style.display = 'table';
     tbody.innerHTML = list.map(u => `
-      <tr data-id="${u.id}">
-        <td>${escapeHtml(u.name || '—')}</td>
+      <tr>
+        <td class="name-cell">${escapeHtml(u.name || '—')}</td>
         <td class="email">${escapeHtml(u.email || '—')}</td>
         <td>${methodBadge(u)}</td>
         <td class="date">${formatDate(u.created_at)}</td>
-        <td style="text-align:right;"><button class="del-btn" data-id="${u.id}">Delete</button></td>
+        <td style="text-align:right;"><button class="del-btn" data-id="${u.id}" data-kind="user">Delete</button></td>
       </tr>
     `).join('');
-
-    tbody.querySelectorAll('.del-btn').forEach(btn => {
-      btn.addEventListener('click', () => deleteUser(btn.dataset.id));
-    });
-  }
-
-  function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
+    attachDeleteHandlers(tbody);
   }
 
   async function loadUsers() {
-    document.getElementById('loading-state').style.display = 'block';
+    document.getElementById('users-loading').style.display = 'block';
     document.getElementById('users-table').style.display = 'none';
-    document.getElementById('empty-state').style.display = 'none';
+    document.getElementById('users-empty').style.display = 'none';
     try {
       const data = await apiRequest('/api/admin/users');
-      if (data.success) {
-        state.users = data.users;
-        applyFilter();
-      } else {
-        showToast(data.message || 'Failed to load users.');
-      }
-    } catch (e) {
-      // handled by apiRequest for 401s; show generic message otherwise
-    } finally {
-      document.getElementById('loading-state').style.display = 'none';
-    }
+      if (data.success) { state.users = data.users; applyUsersFilter(); }
+      else showToast(data.message || 'Failed to load users.');
+    } catch (e) {}
+    finally { document.getElementById('users-loading').style.display = 'none'; }
   }
 
-  function applyFilter() {
-    const q = searchInput.value.trim().toLowerCase();
-    const filtered = !q
-      ? state.users
-      : state.users.filter(u =>
-          (u.name || '').toLowerCase().includes(q) ||
-          (u.email || '').toLowerCase().includes(q)
-        );
+  function applyUsersFilter() {
+    const q = document.getElementById('users-search').value.trim().toLowerCase();
+    const filtered = !q ? state.users : state.users.filter(u =>
+      (u.name || '').toLowerCase().includes(q) || (u.email || '').toLowerCase().includes(q));
     renderUsers(filtered);
   }
+  document.getElementById('users-search').addEventListener('input', applyUsersFilter);
 
-  searchInput.addEventListener('input', applyFilter);
-  refreshBtn.addEventListener('click', () => { loadStats(); loadUsers(); });
+  // ==================================================
+  // WORKERS
+  // ==================================================
+  function renderWorkers(list) {
+    const tbody = document.getElementById('workers-tbody');
+    const table = document.getElementById('workers-table');
+    const empty = document.getElementById('workers-empty');
+    if (!list.length) { table.style.display = 'none'; empty.style.display = 'block'; return; }
+    empty.style.display = 'none'; table.style.display = 'table';
+    tbody.innerHTML = list.map(w => `
+      <tr>
+        <td class="name-cell">${escapeHtml(w.name || '—')}</td>
+        <td class="dim">${escapeHtml(w.category || '—')}</td>
+        <td>${w.rating != null ? w.rating : '—'}</td>
+        <td class="dim">${w.jobs_completed != null ? w.jobs_completed : 0}</td>
+        <td>
+          <select class="avail-select" data-id="${w.id}" data-kind="worker-avail">
+            <option value="avail" ${w.availability === 'avail' ? 'selected' : ''}>Available</option>
+            <option value="busy" ${w.availability === 'busy' ? 'selected' : ''}>Busy</option>
+            <option value="off" ${w.availability === 'off' ? 'selected' : ''}>Off</option>
+          </select>
+        </td>
+        <td style="text-align:right;"><button class="del-btn" data-id="${w.id}" data-kind="worker">Delete</button></td>
+      </tr>
+    `).join('');
+    attachDeleteHandlers(tbody);
+    tbody.querySelectorAll('[data-kind="worker-avail"]').forEach(sel => {
+      sel.addEventListener('change', () => updateWorkerAvailability(sel.dataset.id, sel.value));
+    });
+  }
 
-  async function deleteUser(id) {
-    const user = state.users.find(u => String(u.id) === String(id));
-    const label = user ? (user.email || user.name || `#${id}`) : `#${id}`;
-    if (!confirm(`Delete user ${label}? This cannot be undone.`)) return;
+  async function loadWorkers() {
+    document.getElementById('workers-loading').style.display = 'block';
+    document.getElementById('workers-table').style.display = 'none';
+    document.getElementById('workers-empty').style.display = 'none';
     try {
-      const data = await apiRequest(`/api/admin/users/${id}`, { method: 'DELETE' });
+      const data = await apiRequest('/api/admin/workers');
+      if (data.success) { state.workers = data.workers; applyWorkersFilter(); }
+      else showToast(data.message || 'Failed to load workers.');
+    } catch (e) {}
+    finally { document.getElementById('workers-loading').style.display = 'none'; }
+  }
+
+  function applyWorkersFilter() {
+    const q = document.getElementById('workers-search').value.trim().toLowerCase();
+    const filtered = !q ? state.workers : state.workers.filter(w =>
+      (w.name || '').toLowerCase().includes(q) || (w.category || '').toLowerCase().includes(q));
+    renderWorkers(filtered);
+  }
+  document.getElementById('workers-search').addEventListener('input', applyWorkersFilter);
+
+  async function updateWorkerAvailability(id, availability) {
+    try {
+      const data = await apiRequest(`/api/admin/workers/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ availability }),
+      });
+      if (data.success) { showToast('Availability updated.'); await loadWorkers(); renderCharts(); }
+      else showToast(data.message || 'Failed to update availability.');
+    } catch (e) {}
+  }
+
+  // ==================================================
+  // JOBS
+  // ==================================================
+  function renderJobs(list) {
+    const tbody = document.getElementById('jobs-tbody');
+    const table = document.getElementById('jobs-table');
+    const empty = document.getElementById('jobs-empty');
+    if (!list.length) { table.style.display = 'none'; empty.style.display = 'block'; return; }
+    empty.style.display = 'none'; table.style.display = 'table';
+    tbody.innerHTML = list.map(j => `
+      <tr>
+        <td class="name-cell">${escapeHtml(j.title || '—')}</td>
+        <td class="dim">${escapeHtml(j.category || '—')}</td>
+        <td class="dim">${escapeHtml(j.poster_name || '—')}</td>
+        <td><span class="badge ${escapeHtml(j.status || '')}">${escapeHtml(j.status || '—')}</span></td>
+        <td class="date">${formatDate(j.created_at)}</td>
+        <td style="text-align:right;"><button class="del-btn" data-id="${j.id}" data-kind="job">Delete</button></td>
+      </tr>
+    `).join('');
+    attachDeleteHandlers(tbody);
+  }
+
+  async function loadJobs() {
+    document.getElementById('jobs-loading').style.display = 'block';
+    document.getElementById('jobs-table').style.display = 'none';
+    document.getElementById('jobs-empty').style.display = 'none';
+    try {
+      const data = await apiRequest('/api/admin/jobs');
+      if (data.success) { state.jobs = data.jobs; applyJobsFilter(); }
+      else showToast(data.message || 'Failed to load jobs.');
+    } catch (e) {}
+    finally { document.getElementById('jobs-loading').style.display = 'none'; }
+  }
+
+  function applyJobsFilter() {
+    const q = document.getElementById('jobs-search').value.trim().toLowerCase();
+    const filtered = !q ? state.jobs : state.jobs.filter(j =>
+      (j.title || '').toLowerCase().includes(q) || (j.poster_name || '').toLowerCase().includes(q));
+    renderJobs(filtered);
+  }
+  document.getElementById('jobs-search').addEventListener('input', applyJobsFilter);
+
+  // ==================================================
+  // BOOKINGS
+  // ==================================================
+  function renderBookings(list) {
+    const tbody = document.getElementById('bookings-tbody');
+    const table = document.getElementById('bookings-table');
+    const empty = document.getElementById('bookings-empty');
+    if (!list.length) { table.style.display = 'none'; empty.style.display = 'block'; return; }
+    empty.style.display = 'none'; table.style.display = 'table';
+    tbody.innerHTML = list.map(b => `
+      <tr>
+        <td class="name-cell">${escapeHtml(b.job_title || '—')}</td>
+        <td class="dim">${escapeHtml(b.hirer_name || '—')}</td>
+        <td class="dim">${escapeHtml(b.worker_name || '—')}</td>
+        <td><span class="badge ${escapeHtml(b.status || '')}">${escapeHtml(b.status || '—')}</span></td>
+        <td><span class="badge ${escapeHtml(b.payment_status || 'unpaid')}">${escapeHtml(b.payment_status || 'unpaid')}</span></td>
+        <td class="date">${formatDate(b.created_at)}</td>
+        <td style="text-align:right;"><button class="del-btn" data-id="${b.id}" data-kind="booking">Delete</button></td>
+      </tr>
+    `).join('');
+    attachDeleteHandlers(tbody);
+  }
+
+  async function loadBookings() {
+    document.getElementById('bookings-loading').style.display = 'block';
+    document.getElementById('bookings-table').style.display = 'none';
+    document.getElementById('bookings-empty').style.display = 'none';
+    try {
+      const data = await apiRequest('/api/admin/bookings');
+      if (data.success) { state.bookings = data.bookings; applyBookingsFilter(); }
+      else showToast(data.message || 'Failed to load bookings.');
+    } catch (e) {}
+    finally { document.getElementById('bookings-loading').style.display = 'none'; }
+  }
+
+  function applyBookingsFilter() {
+    const q = document.getElementById('bookings-search').value.trim().toLowerCase();
+    const filtered = !q ? state.bookings : state.bookings.filter(b =>
+      (b.job_title || '').toLowerCase().includes(q) ||
+      (b.hirer_name || '').toLowerCase().includes(q) ||
+      (b.worker_name || '').toLowerCase().includes(q));
+    renderBookings(filtered);
+  }
+  document.getElementById('bookings-search').addEventListener('input', applyBookingsFilter);
+
+  // ==================================================
+  // PAYMENTS
+  // ==================================================
+  function renderPayments(list) {
+    const tbody = document.getElementById('payments-tbody');
+    const table = document.getElementById('payments-table');
+    const empty = document.getElementById('payments-empty');
+    if (!list.length) { table.style.display = 'none'; empty.style.display = 'block'; return; }
+    empty.style.display = 'none'; table.style.display = 'table';
+    tbody.innerHTML = list.map(p => `
+      <tr>
+        <td class="name-cell">${escapeHtml(p.job_title || '—')}</td>
+        <td class="dim">${escapeHtml(p.hirer_name || '—')}</td>
+        <td class="dim">${escapeHtml(p.worker_name || '—')}</td>
+        <td class="amount-cell">Rs ${formatMoney(p.amount)}</td>
+        <td><span class="badge ${escapeHtml(p.provider || '')}">${escapeHtml(p.provider || '—')}</span></td>
+        <td><span class="badge ${escapeHtml(p.status || '')}">${escapeHtml(p.status || '—')}</span></td>
+        <td class="dim" style="font-size:12.5px;">${escapeHtml(p.gateway_ref || '—')}</td>
+        <td class="date">${formatDate(p.created_at)}</td>
+        <td style="text-align:right;"><button class="del-btn" data-id="${p.id}" data-kind="payment">Delete</button></td>
+      </tr>
+    `).join('');
+    attachDeleteHandlers(tbody);
+  }
+
+  async function loadPayments() {
+    document.getElementById('payments-loading').style.display = 'block';
+    document.getElementById('payments-table').style.display = 'none';
+    document.getElementById('payments-empty').style.display = 'none';
+    try {
+      const data = await apiRequest('/api/admin/payments');
+      if (data.success) { state.payments = data.payments; applyPaymentsFilter(); }
+      else showToast(data.message || 'Failed to load payments.');
+    } catch (e) {}
+    finally { document.getElementById('payments-loading').style.display = 'none'; }
+  }
+
+  function applyPaymentsFilter() {
+    const q = document.getElementById('payments-search').value.trim().toLowerCase();
+    const filtered = !q ? state.payments : state.payments.filter(p =>
+      (p.job_title || '').toLowerCase().includes(q) ||
+      (p.hirer_name || '').toLowerCase().includes(q) ||
+      (p.worker_name || '').toLowerCase().includes(q));
+    renderPayments(filtered);
+  }
+  document.getElementById('payments-search').addEventListener('input', applyPaymentsFilter);
+
+  // ==================================================
+  // Shared delete handling
+  // ==================================================
+  const kindConfig = {
+    user:    { endpoint: id => `/api/admin/users/${id}`,    reload: async () => { await loadUsers(); await loadBookings(); await loadPayments(); }, label: 'user' },
+    worker:  { endpoint: id => `/api/admin/workers/${id}`,  reload: loadWorkers, label: 'worker' },
+    job:     { endpoint: id => `/api/admin/jobs/${id}`,     reload: async () => { await loadJobs(); await loadBookings(); await loadPayments(); }, label: 'job' },
+    booking: { endpoint: id => `/api/admin/bookings/${id}`, reload: async () => { await loadBookings(); await loadPayments(); }, label: 'booking' },
+    payment: { endpoint: id => `/api/admin/payments/${id}`, reload: loadPayments, label: 'payment' },
+  };
+
+  function attachDeleteHandlers(container) {
+    container.querySelectorAll('[data-kind]').forEach(btn => {
+      if (btn.tagName !== 'BUTTON') return;
+      btn.addEventListener('click', () => deleteRecord(btn.dataset.kind, btn.dataset.id));
+    });
+  }
+
+  async function deleteRecord(kind, id) {
+    const cfg = kindConfig[kind];
+    if (!cfg) return;
+    if (!confirm(`Delete this ${cfg.label}? This cannot be undone.`)) return;
+    try {
+      const data = await apiRequest(cfg.endpoint(id), { method: 'DELETE' });
       if (data.success) {
-        state.users = state.users.filter(u => String(u.id) !== String(id));
-        applyFilter();
-        loadStats();
-        showToast('User deleted.');
+        showToast(`${cfg.label[0].toUpperCase() + cfg.label.slice(1)} deleted.`);
+        await cfg.reload();
+        renderCharts();
       } else {
-        showToast(data.message || 'Failed to delete user.');
+        showToast(data.message || `Failed to delete ${cfg.label}.`);
       }
-    } catch (e) { /* handled in apiRequest */ }
+    } catch (e) {}
   }
 
   // Auto-login if we still have a password from this session.
-  if (state.password) {
-    showDashboard();
-  } else {
-    showLogin();
-  }
+  if (state.password) showDashboard(); else showLogin();
 </script>
 </body>
 </html>

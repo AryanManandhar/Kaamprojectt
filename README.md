@@ -22,15 +22,7 @@ kam-app.html + auth-social.js --fetch--> Express API (server.js) --SQL--> MySQL 
 mysql -u root -p < schema.sql
 ```
 
-This creates a `kam_app` database with one `users` table (id, name, email,
-password_hash, oauth_provider, oauth_id, created_at).
-
-```bash
-mysql -u root -p kam_app < migration_oauth.sql
-```
-
-Run this ONCE against your existing kam_app database to add OAuth support
-without losing your current users.
+This creates a `kam_app` database with `users`, `workers`, `jobs`, `booking` and `payment` tables.
 
 ```bash
 node seed-workers.js
