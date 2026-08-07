@@ -25,6 +25,12 @@ const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// express.static only auto-serves index.html at "/" — this file is named
+// admin.html, so wire the root path to it explicitly.
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
 const ADMIN_PORT = process.env.ADMIN_PORT || 8080;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 

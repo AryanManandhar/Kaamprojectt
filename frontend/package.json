@@ -1,0 +1,9 @@
+{
+  "name": "kam-frontend",
+  "version": "1.0.0",
+  "description": "Static frontend for the Kam app (kam-app.html + assets)",
+  "private": true,
+  "scripts": {
+    "serve": "node serve.js"
+  }
+}

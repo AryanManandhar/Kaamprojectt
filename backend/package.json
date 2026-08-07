@@ -5,9 +5,10 @@
   "main": "server.js",
   "type": "commonjs",
   "scripts": {
-    "serve": "node serve.js",
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "admin": "node admin-server.js",
+    "seed": "node seed-workers.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
