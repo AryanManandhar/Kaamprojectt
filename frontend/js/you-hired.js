@@ -26,6 +26,14 @@ async function loadYouHired() {
       const statusClass = `hired-status-${b.status}`;
       const showPayButton = b.status === 'completed' && b.payment_status === 'unpaid';
       const showPaidBadge = b.payment_status === 'paid';
+      const showRateButton = b.status === 'completed' && b.payment_status === 'paid' && !b.review_id;
+      const reviewHtml = b.review_id ? `
+        <div class="review-display">
+          <div class="review-display-label">Your review</div>
+          <div class="review-display-stars">${'★'.repeat(b.review_rating)}${'☆'.repeat(5 - b.review_rating)}</div>
+          ${b.review_comment ? `<div class="review-display-comment">${escapeHtml(b.review_comment)}</div>` : ''}
+        </div>
+      ` : '';
       return `
         <div class="hired-card">
           <div class="hired-worker-name">${b.worker_name}</div>
@@ -43,6 +51,8 @@ async function loadYouHired() {
             ${showPaidBadge ? `<span class="hired-status hired-status-completed">paid</span>` : ''}
           </div>
           ${showPayButton ? `<button class="pay-now-btn" onclick="openPaymentModal(${b.id}, ${b.budget || 'null'})">Pay Now${b.budget ? ` — Rs ${b.budget}` : ''}</button>` : ''}
+          ${showRateButton ? `<button class="rate-worker-btn" onclick="openReviewModal(${b.id}, '${(b.worker_name || '').replace(/'/g, "\\'")}')">Rate this worker</button>` : ''}
+          ${reviewHtml}
         </div>
       `;
     }).join('');

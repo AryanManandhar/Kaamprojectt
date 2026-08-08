@@ -158,6 +158,7 @@
   /* Stat cards */
   .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
   .stats-row.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .stats-row.cols-2 { grid-template-columns: repeat(2, 1fr); }
   .stat-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -372,6 +373,10 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/></svg>
           Payments
         </button>
+        <button class="nav-item" data-tab="reviews">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Reviews
+        </button>
 
         <div id="sidebar-footer">
           <button id="logout-btn">Log out</button>
@@ -565,6 +570,39 @@
             </table>
           </div>
         </section>
+
+        <!-- ===================== REVIEWS ===================== -->
+        <section class="panel" id="panel-reviews">
+          <div class="stats-row cols-2">
+            <div class="stat-card">
+              <div class="stat-icon" style="background:var(--accent-light);color:var(--accent-dark);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </div>
+              <div class="num" id="rev-average">—</div>
+              <div class="label">Average rating</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon" style="background:var(--info-light);color:var(--info);">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              </div>
+              <div class="num" id="rev-total">—</div>
+              <div class="label">Total reviews</div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <div class="table-head">
+              <input type="text" id="reviews-search" placeholder="Search by job, hirer, or worker…" />
+              <button class="refresh-btn" data-refresh="reviews">Refresh</button>
+            </div>
+            <div class="loading-state" id="reviews-loading">Loading reviews…</div>
+            <div class="empty-state" id="reviews-empty" style="display:none;">No reviews found.</div>
+            <table id="reviews-table" style="display:none;">
+              <thead><tr><th>Job</th><th>Hirer</th><th>Worker</th><th>Rating</th><th>Comment</th><th>Created</th><th></th></tr></thead>
+              <tbody id="reviews-tbody"></tbody>
+            </table>
+          </div>
+        </section>
       </div>
     </div>
   </div>
@@ -574,7 +612,7 @@
 <script>
   const state = {
     password: sessionStorage.getItem('kam_admin_pw') || '',
-    users: [], workers: [], jobs: [], bookings: [], payments: [],
+    users: [], workers: [], jobs: [], bookings: [], payments: [], reviews: [],
   };
   const charts = {};
 
@@ -602,6 +640,7 @@
     jobs: { title: 'Jobs', sub: 'Job postings created by workers' },
     bookings: { title: 'Bookings', sub: 'Confirmed hires between users and workers' },
     payments: { title: 'Payments', sub: 'eSewa and Khalti transactions for completed bookings' },
+    reviews: { title: 'Reviews', sub: 'Ratings and comments hirers left for workers' },
   };
 
   function showToast(msg) {
@@ -661,7 +700,7 @@
   }
 
   async function loadAll() {
-    await Promise.all([loadStats(), loadUsers(), loadWorkers(), loadJobs(), loadBookings(), loadPayments()]);
+    await Promise.all([loadStats(), loadUsers(), loadWorkers(), loadJobs(), loadBookings(), loadPayments(), loadReviews()]);
     renderCharts();
   }
 
@@ -720,6 +759,7 @@
       if (which === 'jobs') await loadJobs();
       if (which === 'bookings') await loadBookings();
       if (which === 'payments') await loadPayments();
+      if (which === 'reviews') await loadReviews();
       renderCharts();
     });
   });
@@ -1092,14 +1132,71 @@
   document.getElementById('payments-search').addEventListener('input', applyPaymentsFilter);
 
   // ==================================================
+  // REVIEWS
+  // ==================================================
+  function renderStars(rating) {
+    const n = Math.round(Number(rating) || 0);
+    return '★'.repeat(n) + '☆'.repeat(5 - n);
+  }
+
+  function renderReviews(list) {
+    const tbody = document.getElementById('reviews-tbody');
+    const table = document.getElementById('reviews-table');
+    const empty = document.getElementById('reviews-empty');
+    if (!list.length) { table.style.display = 'none'; empty.style.display = 'block'; return; }
+    empty.style.display = 'none'; table.style.display = 'table';
+    tbody.innerHTML = list.map(r => `
+      <tr>
+        <td class="name-cell">${escapeHtml(r.job_title || '—')}</td>
+        <td class="dim">${escapeHtml(r.hirer_name || '—')}</td>
+        <td class="dim">${escapeHtml(r.worker_name || '—')}</td>
+        <td title="${r.rating}/5" style="color:var(--warning);letter-spacing:1px;">${renderStars(r.rating)}</td>
+        <td class="dim" style="max-width:280px;white-space:normal;">${escapeHtml(r.comment || '—')}</td>
+        <td class="date">${formatDate(r.created_at)}</td>
+        <td style="text-align:right;"><button class="del-btn" data-id="${r.id}" data-kind="review">Delete</button></td>
+      </tr>
+    `).join('');
+    attachDeleteHandlers(tbody);
+  }
+
+  async function loadReviews() {
+    document.getElementById('reviews-loading').style.display = 'block';
+    document.getElementById('reviews-table').style.display = 'none';
+    document.getElementById('reviews-empty').style.display = 'none';
+    try {
+      const data = await apiRequest('/api/admin/reviews');
+      if (data.success) {
+        state.reviews = data.reviews;
+        const count = state.reviews.length;
+        const avg = count ? state.reviews.reduce((sum, r) => sum + Number(r.rating), 0) / count : 0;
+        document.getElementById('rev-average').textContent = count ? avg.toFixed(1) : '—';
+        document.getElementById('rev-total').textContent = count;
+        applyReviewsFilter();
+      } else showToast(data.message || 'Failed to load reviews.');
+    } catch (e) {}
+    finally { document.getElementById('reviews-loading').style.display = 'none'; }
+  }
+
+  function applyReviewsFilter() {
+    const q = document.getElementById('reviews-search').value.trim().toLowerCase();
+    const filtered = !q ? state.reviews : state.reviews.filter(r =>
+      (r.job_title || '').toLowerCase().includes(q) ||
+      (r.hirer_name || '').toLowerCase().includes(q) ||
+      (r.worker_name || '').toLowerCase().includes(q));
+    renderReviews(filtered);
+  }
+  document.getElementById('reviews-search').addEventListener('input', applyReviewsFilter);
+
+  // ==================================================
   // Shared delete handling
   // ==================================================
   const kindConfig = {
-    user:    { endpoint: id => `/api/admin/users/${id}`,    reload: async () => { await loadUsers(); await loadBookings(); await loadPayments(); }, label: 'user' },
+    user:    { endpoint: id => `/api/admin/users/${id}`,    reload: async () => { await loadUsers(); await loadBookings(); await loadPayments(); await loadReviews(); }, label: 'user' },
     worker:  { endpoint: id => `/api/admin/workers/${id}`,  reload: loadWorkers, label: 'worker' },
-    job:     { endpoint: id => `/api/admin/jobs/${id}`,     reload: async () => { await loadJobs(); await loadBookings(); await loadPayments(); }, label: 'job' },
-    booking: { endpoint: id => `/api/admin/bookings/${id}`, reload: async () => { await loadBookings(); await loadPayments(); }, label: 'booking' },
+    job:     { endpoint: id => `/api/admin/jobs/${id}`,     reload: async () => { await loadJobs(); await loadBookings(); await loadPayments(); await loadReviews(); }, label: 'job' },
+    booking: { endpoint: id => `/api/admin/bookings/${id}`, reload: async () => { await loadBookings(); await loadPayments(); await loadReviews(); }, label: 'booking' },
     payment: { endpoint: id => `/api/admin/payments/${id}`, reload: loadPayments, label: 'payment' },
+    review:  { endpoint: id => `/api/admin/reviews/${id}`,  reload: loadReviews, label: 'review' },
   };
 
   function attachDeleteHandlers(container) {

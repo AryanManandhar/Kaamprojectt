@@ -25,6 +25,13 @@ async function loadHiredBy() {
       });
       const statusClass = `hired-by-status-${b.status}`;
       const showCompleteButton = b.status === 'confirmed';
+      const reviewHtml = b.review_id ? `
+        <div class="review-display">
+          <div class="review-display-label">Review from ${b.hirer_name || 'hirer'}</div>
+          <div class="review-display-stars">${'★'.repeat(b.review_rating)}${'☆'.repeat(5 - b.review_rating)}</div>
+          ${b.review_comment ? `<div class="review-display-comment">${escapeHtml(b.review_comment)}</div>` : ''}
+        </div>
+      ` : '';
       return `
         <div class="hired-by-card">
           <div class="hired-by-name">${b.hirer_name}</div>
@@ -39,6 +46,7 @@ async function loadHiredBy() {
           </div>
           <span class="hired-by-status ${statusClass}">${b.status}</span>
           ${showCompleteButton ? `<button class="pay-now-btn" onclick="markJobComplete(${b.id})">Mark Job Complete</button>` : ''}
+          ${reviewHtml}
         </div>
       `;
     }).join('');

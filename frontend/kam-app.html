@@ -21,6 +21,8 @@
 <link rel="stylesheet" href="css/user-requests.css">
 <link rel="stylesheet" href="css/you-hired.css">
 <link rel="stylesheet" href="css/hired-by.css">
+<link rel="stylesheet" href="css/notifications.css">
+<link rel="stylesheet" href="css/reviews.css">
 <base target="_blank">
 </head>
 <body>
@@ -209,6 +211,10 @@
       </span>
       <input type="text" placeholder="Search workers by name, skill, or location..." id="search-input" oninput="filterWorkers()">
     </div>
+    <button class="notif-bell-btn" onclick="openNotificationsPanel()" aria-label="Notifications">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="notif-badge" id="notif-badge">0</span>
+    </button>
   </div>
 
   <div class="filter-row" id="filter-row">
@@ -461,12 +467,39 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="review-overlay" onclick="closeReviewModal(event)">
+  <div class="modal" id="review-modal" style="max-width:400px;">
+    <div class="modal-header">
+      <button class="modal-close" onclick="closeReviewModalDirect()">x</button>
+      <div class="modal-name" style="font-size:20px;">Rate <span id="review-worker-name">this worker</span></div>
+    </div>
+    <div class="modal-body">
+      <div class="star-picker" id="review-star-picker"></div>
+      <textarea class="review-comment-input" id="review-comment" placeholder="How did it go? (optional)"></textarea>
+      <button class="review-submit-btn" id="review-submit-btn" onclick="submitReview()">Submit Review</button>
+    </div>
+  </div>
+</div>
+
+<div class="notif-overlay" id="notif-overlay" onclick="closeNotificationsPanel(event)"></div>
+<div class="notif-panel" id="notif-panel">
+  <div class="notif-panel-header">
+    <div class="notif-panel-title">Notifications</div>
+    <div class="notif-panel-actions">
+      <button class="notif-mark-all" onclick="markAllNotificationsRead()">Mark all read</button>
+      <button class="notif-panel-close" onclick="closeNotificationsPanelDirect()">✕</button>
+    </div>
+  </div>
+  <div class="notif-list" id="notif-list"></div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 
 <script src="js/data-workers.js"></script>
 <script src="js/avatar-helper.js"></script>
 <script src="js/crypto-helper.js"></script>
+<script src="js/html-escape.js"></script>
 <script src="js/worker-list.js"></script>
 <script src="js/worker-modal.js"></script>
 <script src="js/drawer.js"></script>
@@ -488,6 +521,8 @@
 <script src="js/mark-complete.js"></script>
 <script src="js/you-hired.js"></script>
 <script src="js/payment.js"></script>
+<script src="js/reviews.js"></script>
+<script src="js/notifications.js"></script>
 <script src="js/post-job-modal.js"></script>
 <script src="js/session.js"></script>
 </body>

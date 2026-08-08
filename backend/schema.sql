@@ -1,4 +1,12 @@
 -- Kam App Database Schema
+--
+-- Note on "workers": jobs.worker_id and bookings.worker_id reference
+-- users(id) — any signed-in user can act as a worker by accepting a job,
+-- and server.js treats worker_id as a user id throughout (worker
+-- availability, bookings, earnings, reviews). The separate `workers` table
+-- below is an unrelated browsable catalog of sample profiles seeded by
+-- seed-workers.js for the "browse workers" screen; it isn't linked to real
+-- user accounts.
 
 CREATE DATABASE IF NOT EXISTS kam_app
 CHARACTER SET utf8mb4
@@ -16,6 +24,8 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash VARCHAR(255) DEFAULT NULL,
     oauth_provider VARCHAR(20) DEFAULT NULL,
     oauth_id VARCHAR(191) DEFAULT NULL,
+    reset_otp VARCHAR(10) DEFAULT NULL,
+    reset_otp_expires DATETIME DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     UNIQUE KEY uniq_provider_account (oauth_provider, oauth_id)
@@ -58,7 +68,7 @@ CREATE TABLE IF NOT EXISTS jobs (
     FOREIGN KEY (user_id) REFERENCES users(id)
         ON DELETE CASCADE,
 
-    FOREIGN KEY (worker_id) REFERENCES workers(id)
+    FOREIGN KEY (worker_id) REFERENCES users(id)
         ON DELETE SET NULL
 );
 
@@ -71,6 +81,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     worker_id INT NOT NULL,
     user_id INT NOT NULL,
     status VARCHAR(20) DEFAULT 'confirmed',
+    payment_status ENUM('unpaid','paid') NOT NULL DEFAULT 'unpaid',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ON UPDATE CURRENT_TIMESTAMP,
@@ -78,7 +89,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     FOREIGN KEY (job_id) REFERENCES jobs(id)
         ON DELETE CASCADE,
 
-    FOREIGN KEY (worker_id) REFERENCES workers(id)
+    FOREIGN KEY (worker_id) REFERENCES users(id)
         ON DELETE CASCADE,
 
     FOREIGN KEY (user_id) REFERENCES users(id)
@@ -103,4 +114,50 @@ CREATE TABLE IF NOT EXISTS payments (
   FOREIGN KEY (booking_id) REFERENCES bookings(id),
   FOREIGN KEY (user_id) REFERENCES users(id),
   INDEX idx_payments_booking (booking_id)
+);
+
+-- ==========================
+-- REVIEWS
+-- ==========================
+-- One review per booking, left by the hirer (bookings.user_id) about the
+-- worker who did the job (bookings.worker_id — a real user, see note on
+-- bookings.worker_id above). Only allowed once the booking is completed.
+CREATE TABLE IF NOT EXISTS reviews (
+    id          INT AUTO_INCREMENT PRIMARY KEY,
+    booking_id  INT NOT NULL UNIQUE,
+    job_id      INT NOT NULL,
+    worker_id   INT NOT NULL,           -- who the review is about
+    user_id     INT NOT NULL,           -- who wrote it (the hirer)
+    rating      TINYINT NOT NULL,
+    comment     TEXT,
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE,
+    FOREIGN KEY (job_id) REFERENCES jobs(id) ON DELETE CASCADE,
+    FOREIGN KEY (worker_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT chk_review_rating CHECK (rating BETWEEN 1 AND 5),
+    INDEX idx_reviews_worker (worker_id)
+);
+
+-- ==========================
+-- NOTIFICATIONS
+-- ==========================
+-- In-app notifications for a user (job accepted/declined, hired, job
+-- completed, payment due/received, new review, etc). One row per event,
+-- one recipient per row.
+CREATE TABLE IF NOT EXISTS notifications (
+    id            INT AUTO_INCREMENT PRIMARY KEY,
+    user_id       INT NOT NULL,                 -- recipient
+    type          VARCHAR(40) NOT NULL,         -- e.g. 'job_accepted', 'payment_received', 'new_review'
+    title         VARCHAR(150) NOT NULL,
+    message       TEXT,
+    related_type  VARCHAR(20) DEFAULT NULL,     -- 'job' | 'booking' | 'payment' | 'review'
+    related_id    INT DEFAULT NULL,
+    is_read       TINYINT(1) NOT NULL DEFAULT 0,
+    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_notifications_user (user_id, is_read, created_at)
 );

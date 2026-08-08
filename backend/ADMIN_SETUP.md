@@ -45,7 +45,7 @@ Your `db.js` almost certainly already uses `mysql2`, but if `npm start`
 fails with "Cannot find module 'mysql2'", run:
 
 ```bash
-cd kam-backend
+cd backend
 npm install mysql2
 ```
 

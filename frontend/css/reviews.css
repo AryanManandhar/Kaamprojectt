@@ -1,0 +1,36 @@
+  /* ===================== Reviews ===================== */
+  .rate-worker-btn {
+    margin-top: 10px; width: 100%; padding: 10px; border-radius: 10px; border: 1.5px solid var(--amber);
+    background: transparent; color: var(--amber); font-size: 13.5px; font-weight: 700; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .rate-worker-btn:hover { background: var(--amber); color: #fff; }
+
+  .star-picker { display: flex; gap: 6px; justify-content: center; margin: 14px 0 6px; }
+  .star-picker .star-btn {
+    background: none; border: none; cursor: pointer; font-size: 34px; line-height: 1;
+    color: var(--cream-dark); transition: color 0.15s, transform 0.1s;
+  }
+  .star-picker .star-btn:hover { transform: scale(1.12); }
+  .star-picker .star-btn.filled { color: var(--amber); }
+
+  .review-comment-input {
+    width: 100%; min-height: 80px; margin-top: 10px; padding: 10px 12px; border-radius: 10px;
+    border: 1.5px solid var(--cream-dark); font-family: 'DM Sans', sans-serif; font-size: 13.5px;
+    resize: vertical; outline: none; box-sizing: border-box;
+  }
+  .review-comment-input:focus { border-color: var(--amber); }
+
+  .review-submit-btn {
+    width: 100%; margin-top: 12px; padding: 12px; border-radius: 10px; border: none;
+    background: var(--amber); color: #fff; font-size: 14px; font-weight: 700; cursor: pointer;
+    transition: background 0.2s;
+  }
+  .review-submit-btn:hover { background: var(--amber-light); }
+  .review-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  /* Read-only display of an existing review, shown on hired/hired-by cards */
+  .review-display { margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: rgba(200,104,26,0.08); border: 1px solid rgba(200,104,26,0.2); }
+  .review-display-stars { color: var(--amber); font-size: 15px; letter-spacing: 1px; }
+  .review-display-comment { margin-top: 4px; font-size: 12.5px; color: var(--charcoal-mid); line-height: 1.4; }
+  .review-display-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--charcoal-mid); opacity: 0.7; margin-bottom: 3px; }

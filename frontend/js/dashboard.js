@@ -12,6 +12,7 @@ function showDashboard(user) {
   document.getElementById('hired-by-section').classList.remove('visible');
   loadYouHired();
   loadJobs();
+  initNotifications();
 }
 
 function showMyJobs() {
@@ -26,6 +27,7 @@ function doLogout() {
   localStorage.removeItem('kam_token');
   localStorage.removeItem('kam_user');
   closeDrawer();
+  stopNotifications();
   document.getElementById('dashboard-screen').classList.remove('active');
   document.getElementById('login-screen').classList.add('active');
 }

@@ -13,6 +13,7 @@ const {
   initiateKhaltiPayment,
   lookupKhaltiPayment,
 } = require('./payments');
+const { notify } = require('./notifications');
 
 const app = express();
 app.use(cors());
@@ -30,6 +31,27 @@ const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5500/kam-app.
 
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+// Shared by both the eSewa and Khalti success paths — looks up who did the
+// job and lets them know they've been paid.
+async function notifyPaymentReceived(bookingId, amount) {
+  try {
+    const [[booking]] = await pool.query(
+      `SELECT b.worker_id, j.title FROM bookings b JOIN jobs j ON b.job_id = j.id WHERE b.id = ?`,
+      [bookingId]
+    );
+    if (!booking) return;
+    await notify(booking.worker_id, {
+      type: 'payment_received',
+      title: 'Payment received',
+      message: `You've been paid Rs ${Number(amount).toFixed(2)} for "${booking.title}".`,
+      relatedType: 'payment',
+      relatedId: bookingId,
+    });
+  } catch (notifyErr) {
+    console.error('Payment notification failed (non-fatal):', notifyErr);
+  }
 }
 
 app.get('/api/workers', async (req, res) => {
@@ -335,6 +357,32 @@ app.patch('/api/jobs/:id', requireAuth, async (req, res) => {
       [status, req.user.userId, jobId]
     );
 
+    if (status === 'accepted' || status === 'declined') {
+      try {
+        const [[worker]] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.userId]);
+        const workerName = worker ? worker.name : 'A worker';
+        if (status === 'accepted') {
+          await notify(jobRows[0].user_id, {
+            type: 'job_accepted',
+            title: 'Your job was accepted',
+            message: `${workerName} accepted "${jobRows[0].title}".`,
+            relatedType: 'job',
+            relatedId: jobId,
+          });
+        } else {
+          await notify(jobRows[0].user_id, {
+            type: 'job_declined',
+            title: 'Your job was declined',
+            message: `${workerName} declined "${jobRows[0].title}".`,
+            relatedType: 'job',
+            relatedId: jobId,
+          });
+        }
+      } catch (notifyErr) {
+        console.error('Notification failed (non-fatal):', notifyErr);
+      }
+    }
+
     res.json({ success: true, jobId, status });
   } catch (err) {
     console.error('Update job status error:', err);
@@ -407,6 +455,19 @@ app.post('/api/bookings', requireAuth, async (req, res) => {
       [job_id]
     );
 
+    try {
+      const [[hirer]] = await pool.query('SELECT name FROM users WHERE id = ?', [userId]);
+      await notify(worker_id, {
+        type: 'job_hired',
+        title: "You've been hired",
+        message: `${hirer ? hirer.name : 'Someone'} hired you for "${jobRows[0].title}".`,
+        relatedType: 'booking',
+        relatedId: bookingResult.insertId,
+      });
+    } catch (notifyErr) {
+      console.error('Notification failed (non-fatal):', notifyErr);
+    }
+
     res.json({ success: true, bookingId: bookingResult.insertId });
   } catch (err) {
     console.error('Create booking error:', err);
@@ -418,10 +479,12 @@ app.post('/api/bookings', requireAuth, async (req, res) => {
 app.get('/api/bookings/user', requireAuth, async (req, res) => {
   try {
     const [rows] = await pool.query(
-      `SELECT b.*, j.title, j.category, j.location, j.budget, u.name as worker_name, u.email as worker_email
+      `SELECT b.*, j.title, j.category, j.location, j.budget, u.name as worker_name, u.email as worker_email,
+              r.id AS review_id, r.rating AS review_rating, r.comment AS review_comment
        FROM bookings b
        JOIN jobs j ON b.job_id = j.id
        JOIN users u ON b.worker_id = u.id
+       LEFT JOIN reviews r ON r.booking_id = b.id
        WHERE b.user_id = ?
        ORDER BY b.created_at DESC`,
       [req.user.userId]
@@ -437,10 +500,12 @@ app.get('/api/bookings/user', requireAuth, async (req, res) => {
 app.get('/api/bookings/worker', requireAuth, async (req, res) => {
   try {
     const [rows] = await pool.query(
-      `SELECT b.*, j.title, j.category, j.location, j.budget, u.name as hirer_name
+      `SELECT b.*, j.title, j.category, j.location, j.budget, u.name as hirer_name,
+              r.id AS review_id, r.rating AS review_rating, r.comment AS review_comment
        FROM bookings b
        JOIN jobs j ON b.job_id = j.id
        JOIN users u ON b.user_id = u.id
+       LEFT JOIN reviews r ON r.booking_id = b.id
        WHERE b.worker_id = ?
        ORDER BY b.created_at DESC`,
       [req.user.userId]
@@ -500,6 +565,34 @@ app.patch('/api/bookings/:id', requireAuth, async (req, res) => {
       } catch (mailErr) {
         console.error('Payment-due email failed (non-fatal):', mailErr);
       }
+
+      try {
+        await notify(booking.user_id, {
+          type: 'job_completed',
+          title: 'Job completed — payment due',
+          message: `The worker marked "${booking.title}" as completed. Please review and pay.`,
+          relatedType: 'booking',
+          relatedId: bookingId,
+        });
+      } catch (notifyErr) {
+        console.error('Notification failed (non-fatal):', notifyErr);
+      }
+    }
+
+    if (status === 'cancelled') {
+      // Notify whichever side didn't make this request.
+      const recipientId = req.user.userId === booking.user_id ? booking.worker_id : booking.user_id;
+      try {
+        await notify(recipientId, {
+          type: 'booking_cancelled',
+          title: 'Booking cancelled',
+          message: `The booking for "${booking.title}" was cancelled.`,
+          relatedType: 'booking',
+          relatedId: bookingId,
+        });
+      } catch (notifyErr) {
+        console.error('Notification failed (non-fatal):', notifyErr);
+      }
     }
 
     res.json({ success: true, message: 'Booking updated.' });
@@ -525,6 +618,249 @@ app.get('/api/worker-earnings', requireAuth, async (req, res) => {
     res.json({ success: true, earnings: Number(total) });
   } catch (err) {
     console.error('Fetch worker earnings error:', err);
+    res.status(500).json({ success: false, message: 'Something went wrong.' });
+  }
+});
+
+// ===================== Reviews =====================
+// A review belongs to a completed booking. The hirer (bookings.user_id)
+// rates the worker (bookings.worker_id) 1-5 stars with an optional comment.
+// One review per booking — the `reviews.booking_id` UNIQUE constraint is
+// the real guard; the SELECT below just gives a friendlier error message.
+
+app.post('/api/reviews', requireAuth, async (req, res) => {
+  try {
+    const { booking_id, rating, comment } = req.body;
+    const ratingNum = Number(rating);
+
+    if (!booking_id || !Number.isInteger(ratingNum) || ratingNum < 1 || ratingNum > 5) {
+      return res.status(400).json({ success: false, message: 'booking_id and a rating from 1-5 are required.' });
+    }
+
+    const [rows] = await pool.query(
+      `SELECT b.id, b.job_id, b.worker_id, b.user_id, b.status, j.title
+       FROM bookings b
+       JOIN jobs j ON b.job_id = j.id
+       WHERE b.id = ?`,
+      [booking_id]
+    );
+    const booking = rows[0];
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found.' });
+    }
+    if (booking.user_id !== req.user.userId) {
+      return res.status(403).json({ success: false, message: 'You can only review your own bookings.' });
+    }
+    if (booking.status !== 'completed') {
+      return res.status(400).json({ success: false, message: 'You can only review a completed booking.' });
+    }
+
+    const [existing] = await pool.query('SELECT id FROM reviews WHERE booking_id = ?', [booking_id]);
+    if (existing.length > 0) {
+      return res.status(409).json({ success: false, message: "You've already reviewed this booking." });
+    }
+
+    const [result] = await pool.query(
+      `INSERT INTO reviews (booking_id, job_id, worker_id, user_id, rating, comment)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [booking_id, booking.job_id, booking.worker_id, req.user.userId, ratingNum, comment || null]
+    );
+
+    try {
+      const [[hirer]] = await pool.query('SELECT name FROM users WHERE id = ?', [req.user.userId]);
+      await notify(booking.worker_id, {
+        type: 'new_review',
+        title: `New ${ratingNum}-star review`,
+        message: `${hirer ? hirer.name : 'A hirer'} left a review for "${booking.title}".`,
+        relatedType: 'review',
+        relatedId: result.insertId,
+      });
+    } catch (notifyErr) {
+      console.error('Notification failed (non-fatal):', notifyErr);
+    }
+
+    res.json({ success: true, reviewId: result.insertId });
+  } catch (err) {
+    console.error('Create review error:', err);
+    res.status(500).json({ success: false, message: 'Something went wrong. Please try again.' });
+  }
+});
+
+// Public: reviews received by a given worker, newest first, plus the
+// average rating and count — for a worker's profile page.
+app.get('/api/reviews/worker/:workerId', async (req, res) => {
+  try {
+    const workerId = req.params.workerId;
+    const [rows] = await pool.query(
+      `SELECT r.id, r.rating, r.comment, r.created_at, j.title AS job_title, u.name AS reviewer_name
+       FROM reviews r
+       JOIN jobs j ON r.job_id = j.id
+       JOIN users u ON r.user_id = u.id
+       WHERE r.worker_id = ?
+       ORDER BY r.created_at DESC`,
+      [workerId]
+    );
+    const [[stats]] = await pool.query(
+      `SELECT COALESCE(AVG(rating), 0) AS average, COUNT(*) AS count FROM reviews WHERE worker_id = ?`,
+      [workerId]
+    );
+    res.json({
+      success: true,
+      reviews: rows,
+      average: Number(Number(stats.average).toFixed(2)),
+      count: stats.count,
+    });
+  } catch (err) {
+    console.error('Fetch worker reviews error:', err);
+    res.status(500).json({ success: false, message: 'Something went wrong.' });
+  }
+});
+
+// The logged-in user's own reviews — reviews they've RECEIVED as a worker
+// by default, or reviews they've WRITTEN as a hirer with ?as=given.
+app.get('/api/reviews/mine', requireAuth, async (req, res) => {
+  try {
+    const asGiven = req.query.as === 'given';
+    const [rows] = await pool.query(
+      asGiven
+        ? `SELECT r.id, r.rating, r.comment, r.created_at, j.title AS job_title, u.name AS worker_name
+           FROM reviews r
+           JOIN jobs j ON r.job_id = j.id
+           JOIN users u ON r.worker_id = u.id
+           WHERE r.user_id = ?
+           ORDER BY r.created_at DESC`
+        : `SELECT r.id, r.rating, r.comment, r.created_at, j.title AS job_title, u.name AS reviewer_name
+           FROM reviews r
+           JOIN jobs j ON r.job_id = j.id
+           JOIN users u ON r.user_id = u.id
+           WHERE r.worker_id = ?
+           ORDER BY r.created_at DESC`,
+      [req.user.userId]
+    );
+    res.json({ success: true, reviews: rows });
+  } catch (err) {
+    console.error('Fetch my reviews error:', err);
+    res.status(500).json({ success: false, message: 'Something went wrong.' });
+  }
+});
+
+// Edit or delete your own review.
+app.patch('/api/reviews/:id', requireAuth, async (req, res) => {
+  try {
+    const { rating, comment } = req.body;
+    const ratingNum = rating === undefined ? undefined : Number(rating);
+    if (ratingNum !== undefined && (!Number.isInteger(ratingNum) || ratingNum < 1 || ratingNum > 5)) {
+      return res.status(400).json({ success: false, message: 'Rating must be an integer from 1-5.' });
+    }
+
+    const [rows] = await pool.query('SELECT * FROM reviews WHERE id = ?', [req.params.id]);
+    const review = rows[0];
+    if (!review) return res.status(404).json({ success: false, message: 'Review not found.' });
+    if (review.user_id !== req.user.userId) {
+      return res.status(403).json({ success: false, message: 'You can only edit your own reviews.' });
+    }
+
+    await pool.query('UPDATE reviews SET rating = ?, comment = ? WHERE id = ?', [
+      ratingNum !== undefined ? ratingNum : review.rating,
+      comment !== undefined ? comment : review.comment,
+      req.params.id,
+    ]);
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Update review error:', err);
+    res.status(500).json({ success: false, message: 'Something went wrong.' });
+  }
+});
+
+app.delete('/api/reviews/:id', requireAuth, async (req, res) => {
+  try {
+    const [rows] = await pool.query('SELECT * FROM reviews WHERE id = ?', [req.params.id]);
+    const review = rows[0];
+    if (!review) return res.status(404).json({ success: false, message: 'Review not found.' });
+    if (review.user_id !== req.user.userId) {
+      return res.status(403).json({ success: false, message: 'You can only delete your own reviews.' });
+    }
+    await pool.query('DELETE FROM reviews WHERE id = ?', [req.params.id]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Delete review error:', err);
+    res.status(500).json({ success: false, message: 'Something went wrong.' });
+  }
+});
+
+// ===================== Notifications =====================
+
+// List the logged-in user's notifications, newest first (capped at 50).
+app.get('/api/notifications', requireAuth, async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT id, type, title, message, related_type, related_id, is_read, created_at
+       FROM notifications
+       WHERE user_id = ?
+       ORDER BY created_at DESC
+       LIMIT 50`,
+      [req.user.userId]
+    );
+    res.json({ success: true, notifications: rows });
+  } catch (err) {
+    console.error('Fetch notifications error:', err);
+    res.status(500).json({ success: false, message: 'Something went wrong.' });
+  }
+});
+
+// Quick unread count — cheap enough to poll for a badge.
+app.get('/api/notifications/unread-count', requireAuth, async (req, res) => {
+  try {
+    const [[{ count }]] = await pool.query(
+      `SELECT COUNT(*) AS count FROM notifications WHERE user_id = ? AND is_read = 0`,
+      [req.user.userId]
+    );
+    res.json({ success: true, count });
+  } catch (err) {
+    console.error('Fetch unread count error:', err);
+    res.status(500).json({ success: false, message: 'Something went wrong.' });
+  }
+});
+
+app.patch('/api/notifications/:id/read', requireAuth, async (req, res) => {
+  try {
+    const [result] = await pool.query(
+      'UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?',
+      [req.params.id, req.user.userId]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Notification not found.' });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Mark notification read error:', err);
+    res.status(500).json({ success: false, message: 'Something went wrong.' });
+  }
+});
+
+app.post('/api/notifications/read-all', requireAuth, async (req, res) => {
+  try {
+    await pool.query('UPDATE notifications SET is_read = 1 WHERE user_id = ? AND is_read = 0', [req.user.userId]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Mark all notifications read error:', err);
+    res.status(500).json({ success: false, message: 'Something went wrong.' });
+  }
+});
+
+app.delete('/api/notifications/:id', requireAuth, async (req, res) => {
+  try {
+    const [result] = await pool.query(
+      'DELETE FROM notifications WHERE id = ? AND user_id = ?',
+      [req.params.id, req.user.userId]
+    );
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Notification not found.' });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Delete notification error:', err);
     res.status(500).json({ success: false, message: 'Something went wrong.' });
   }
 });
@@ -643,6 +979,7 @@ app.get('/api/payments/esewa/success', async (req, res) => {
         [status.ref_id || null, JSON.stringify(status), payment.id]
       );
       await pool.query(`UPDATE bookings SET payment_status = 'paid' WHERE id = ?`, [payment.booking_id]);
+      await notifyPaymentReceived(payment.booking_id, payment.amount);
       return res.redirect(`${FRONTEND_URL}?payment=success&booking_id=${payment.booking_id}`);
     }
 
@@ -686,6 +1023,7 @@ app.get('/api/payments/khalti/callback', async (req, res) => {
         [lookup.transaction_id || pidx, JSON.stringify(lookup), payment.id]
       );
       await pool.query(`UPDATE bookings SET payment_status = 'paid' WHERE id = ?`, [payment.booking_id]);
+      await notifyPaymentReceived(payment.booking_id, payment.amount);
       return res.redirect(`${FRONTEND_URL}?payment=success&booking_id=${payment.booking_id}`);
     }
 

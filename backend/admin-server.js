@@ -327,6 +327,42 @@ app.delete('/api/admin/payments/:id', requireAdmin, async (req, res) => {
   }
 });
 
+// =========================================================
+// REVIEWS
+// =========================================================
+
+app.get('/api/admin/reviews', requireAdmin, async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT reviews.*, jobs.title AS job_title,
+              hirer.name AS hirer_name, worker.name AS worker_name
+       FROM reviews
+       JOIN jobs ON reviews.job_id = jobs.id
+       JOIN users hirer ON reviews.user_id = hirer.id
+       JOIN users worker ON reviews.worker_id = worker.id
+       ORDER BY reviews.created_at DESC`
+    );
+    res.json({ success: true, reviews: rows });
+  } catch (err) {
+    console.error('Failed to fetch reviews:', err);
+    res.status(500).json({ success: false, message: 'Database error.' });
+  }
+});
+
+// Remove an abusive, spammy, or otherwise problematic review.
+app.delete('/api/admin/reviews/:id', requireAdmin, async (req, res) => {
+  try {
+    const [result] = await pool.query('DELETE FROM reviews WHERE id = ?', [req.params.id]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Review not found.' });
+    }
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Failed to delete review:', err);
+    res.status(500).json({ success: false, message: 'Database error.' });
+  }
+});
+
 app.listen(ADMIN_PORT, () => {
   console.log(`Kam Admin Panel running on http://localhost:${ADMIN_PORT}`);
 });
