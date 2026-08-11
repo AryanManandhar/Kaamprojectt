@@ -56,18 +56,113 @@ async function notifyPaymentReceived(bookingId, amount) {
 
 app.get('/api/workers', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT * FROM workers ORDER BY rating DESC');
-    const workers = rows.map(w => ({
+    const [seededRows] = await pool.query('SELECT * FROM workers ORDER BY rating DESC');
+    const seeded = seededRows.map(w => ({
       ...w,
       skills: JSON.parse(w.skills),
-      reviews: JSON.parse(w.reviews),
+      // Seeded reviews never had a per-review rating (they were always
+      // rendered as 5 stars) — attach one now so the frontend can treat
+      // seeded and real reviews the same way.
+      reviews: JSON.parse(w.reviews).map(r => ({ ...r, rating: 5 })),
+      is_real: false,
     }));
+
+    const realWorkers = await getRealRatedWorkers();
+
+    const workers = [...seeded, ...realWorkers].sort((a, b) => b.rating - a.rating);
     res.json({ success: true, workers });
   } catch (err) {
     console.error('Fetch workers error:', err);
     res.status(500).json({ success: false, message: 'Could not load workers.' });
   }
 });
+
+// Real users who have at least one real review, with stats computed from
+// their actual completed bookings and reviews — as opposed to the fake
+// `workers` catalog above. "Rated" means they have a review; a worker who
+// has done jobs but has zero reviews yet isn't listed here.
+async function getRealRatedWorkers() {
+  const [ratingRows] = await pool.query(
+    `SELECT worker_id, AVG(rating) AS avg_rating, COUNT(*) AS review_count
+     FROM reviews
+     GROUP BY worker_id`
+  );
+  if (ratingRows.length === 0) return [];
+
+  const workerIds = ratingRows.map(r => r.worker_id);
+
+  const [userRows] = await pool.query(
+    `SELECT id, name, availability FROM users WHERE id IN (?)`,
+    [workerIds]
+  );
+  const [statRows] = await pool.query(
+    `SELECT b.worker_id,
+            COUNT(DISTINCT CASE WHEN b.status = 'completed' THEN b.id END) AS jobs_completed,
+            COUNT(DISTINCT b.user_id) AS houses_served
+     FROM bookings b
+     WHERE b.worker_id IN (?)
+     GROUP BY b.worker_id`,
+    [workerIds]
+  );
+  const [categoryRows] = await pool.query(
+    `SELECT b.worker_id, j.category, COUNT(*) AS cnt
+     FROM bookings b
+     JOIN jobs j ON b.job_id = j.id
+     WHERE b.worker_id IN (?) AND b.status = 'completed'
+     GROUP BY b.worker_id, j.category`,
+    [workerIds]
+  );
+  const [reviewRows] = await pool.query(
+    `SELECT r.worker_id, r.rating, r.comment, r.created_at, u.name AS reviewer_name
+     FROM reviews r
+     JOIN users u ON r.user_id = u.id
+     WHERE r.worker_id IN (?)
+     ORDER BY r.created_at DESC`,
+    [workerIds]
+  );
+
+  const usersById = new Map(userRows.map(u => [u.id, u]));
+  const statsById = new Map(statRows.map(s => [s.worker_id, s]));
+
+  // Pick each worker's most-frequent completed-job category.
+  const topCategoryById = new Map();
+  for (const row of categoryRows) {
+    const current = topCategoryById.get(row.worker_id);
+    if (!current || row.cnt > current.cnt) {
+      topCategoryById.set(row.worker_id, { category: row.category, cnt: row.cnt });
+    }
+  }
+
+  const reviewsById = new Map();
+  for (const row of reviewRows) {
+    if (!reviewsById.has(row.worker_id)) reviewsById.set(row.worker_id, []);
+    reviewsById.get(row.worker_id).push({ a: row.reviewer_name, t: row.comment || '(No comment left.)', rating: row.rating });
+  }
+
+  return ratingRows
+    .filter(r => usersById.has(r.worker_id)) // skip if the user was deleted since
+    .map(r => {
+      const user = usersById.get(r.worker_id);
+      const stats = statsById.get(r.worker_id) || { jobs_completed: 0, houses_served: 0 };
+      const category = topCategoryById.get(r.worker_id)?.category || 'General';
+      const reviewCount = Number(r.review_count);
+      return {
+        id: `real-${r.worker_id}`,
+        name: user.name,
+        category,
+        rating: Number(Number(r.avg_rating).toFixed(1)),
+        jobs_completed: stats.jobs_completed,
+        houses_served: stats.houses_served,
+        availability: user.availability || 'avail',
+        years_experience: null,
+        bio: `Verified Kam worker with ${reviewCount} real ${reviewCount === 1 ? 'review' : 'reviews'} from hirers on the platform.`,
+        emoji: null,
+        skills: [category],
+        reviews: reviewsById.get(r.worker_id) || [],
+        is_real: true,
+      };
+    });
+}
 
 app.post('/api/signup', async (req, res) => {
   try {
@@ -235,11 +330,10 @@ app.get('/api/me', requireAuth, async (req, res) => {
 app.get('/api/worker-availability', requireAuth, async (req, res) => {
   try {
     const [rows] = await pool.query(
-      'SELECT availability FROM workers WHERE id = ?',
+      'SELECT availability FROM users WHERE id = ?',
       [req.user.userId]
     );
     if (rows.length === 0) {
-      // If no worker profile exists, default to available
       return res.json({ success: true, availability: 'avail' });
     }
     res.json({ success: true, availability: rows[0].availability });
@@ -258,9 +352,8 @@ app.patch('/api/worker-availability', requireAuth, async (req, res) => {
       return res.status(400).json({ success: false, message: "Availability must be 'avail', 'busy', or 'off'." });
     }
 
-    // Update workers table availability
     await pool.query(
-      'UPDATE workers SET availability = ? WHERE id = ?',
+      'UPDATE users SET availability = ? WHERE id = ?',
       [availability, req.user.userId]
     );
 
@@ -352,6 +445,11 @@ app.patch('/api/jobs/:id', requireAuth, async (req, res) => {
       return res.status(409).json({ success: false, message: 'This deal has already been taken.' });
     }
 
+    // Can't accept/decline your own job as a worker — that's you hiring yourself.
+    if ((status === 'accepted' || status === 'declined') && jobRows[0].user_id === req.user.userId) {
+      return res.status(403).json({ success: false, message: "You can't accept your own job posting." });
+    }
+
     await pool.query(
       'UPDATE jobs SET status = ?, worker_id = ? WHERE id = ?',
       [status, req.user.userId, jobId]
@@ -435,6 +533,10 @@ app.post('/api/bookings', requireAuth, async (req, res) => {
 
     if (!job_id || !worker_id) {
       return res.status(400).json({ success: false, message: 'Job ID and Worker ID are required.' });
+    }
+
+    if (Number(worker_id) === userId) {
+      return res.status(403).json({ success: false, message: "You can't hire yourself for your own job." });
     }
 
     // Check if job exists and is open

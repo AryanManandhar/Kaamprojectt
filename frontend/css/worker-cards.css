@@ -18,6 +18,10 @@
   .worker-avail-badge.avail { background: var(--green-badge); }
   .worker-avail-badge.busy { background: #FF9800; }
   .worker-avail-badge.off { background: #ccc; }
+  .worker-verified-badge {
+    position: absolute; top: 14px; left: 14px; font-size: 10px; font-weight: 700; letter-spacing: 0.2px;
+    color: #fff; background: var(--amber); padding: 3px 8px; border-radius: 20px; z-index: 2;
+  }
   .worker-name { font-weight: 600; font-size: 14px; text-align: center; color: var(--charcoal); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .worker-category { font-size: 11px; text-align: center; color: var(--amber); font-weight: 600; letter-spacing: 0.04em; margin-bottom: 8px; text-transform: uppercase; }
   .worker-stars { display: flex; justify-content: center; gap: 2px; margin-bottom: 6px; }

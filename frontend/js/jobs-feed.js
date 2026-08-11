@@ -7,7 +7,17 @@ async function loadJobs() {
       list.innerHTML = '<div style="color:var(--charcoal-mid); font-size:13px; padding:8px 0;">No worker deals available right now.</div>';
       return;
     }
-    list.innerHTML = data.jobs.map(j => `
+
+    // Never show a "Hire" button on your own posted job — you can't hire yourself.
+    const currentUser = JSON.parse(localStorage.getItem('kam_user') || 'null');
+    const jobs = currentUser ? data.jobs.filter(j => j.user_id !== currentUser.id) : data.jobs;
+
+    if (jobs.length === 0) {
+      list.innerHTML = '<div style="color:var(--charcoal-mid); font-size:13px; padding:8px 0;">No worker deals available right now.</div>';
+      return;
+    }
+
+    list.innerHTML = jobs.map(j => `
       <div class="job-request-card" id="job-card-${j.id}">
         <div style="font-size:13px; font-weight:700; color:var(--amber); width:32px; text-align:center;">${j.category ? j.category.substring(0,2).toUpperCase() : 'JB'}</div>
         <div style="flex:1;">

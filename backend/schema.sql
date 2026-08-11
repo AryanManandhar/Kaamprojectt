@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS users (
     oauth_id VARCHAR(191) DEFAULT NULL,
     reset_otp VARCHAR(10) DEFAULT NULL,
     reset_otp_expires DATETIME DEFAULT NULL,
+    availability ENUM('avail','busy','off') NOT NULL DEFAULT 'avail',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
     UNIQUE KEY uniq_provider_account (oauth_provider, oauth_id)

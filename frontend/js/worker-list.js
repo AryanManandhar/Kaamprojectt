@@ -1,10 +1,16 @@
 async function loadWorkers() {
+  // `GET /api/workers` merges two sources: the seeded `workers` catalog
+  // (fake demo profiles from seed-workers.js) and real users who have at
+  // least one real review (computed from actual bookings/reviews — see
+  // getRealRatedWorkers() in server.js). Real ones carry `is_real: true`
+  // and get a "Verified" badge below.
   try {
     const base = window.API_BASE || 'http://localhost:4000';
     const res = await fetch(`${base}/api/workers`);
     const data = await res.json();
     if (data.success) {
       WORKERS = data.workers.map(w => ({
+        id: w.id,
         name: w.name,
         cat: w.category,
         rating: parseFloat(w.rating),
@@ -16,6 +22,7 @@ async function loadWorkers() {
         reviews: w.reviews,
         photo: photoFor(w.name),
         yr: w.years_experience,
+        isReal: !!w.is_real,
       }));
       filterWorkers();
     } else {
@@ -44,6 +51,7 @@ function renderWorkers(list) {
   grid.innerHTML = list.map((w,i) => `
     <div class="worker-card" onclick="openModal(${WORKERS.indexOf(w)})">
       <div class="worker-avail-badge ${w.avail}" title="${availLabel(w.avail)}"></div>
+      ${w.isReal ? `<div class="worker-verified-badge" title="Rated from a real Kam booking">✓ Verified</div>` : ''}
       <img class="worker-avatar" src="${w.photo}" alt="${w.name}" loading="lazy">
       <div class="worker-name">${w.name}</div>
       <div class="worker-category">${w.cat}</div>
